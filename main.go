@@ -29,8 +29,7 @@ type Config struct {
 func main() {
 	var cfg Config
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		AddSource: true,
-		Level:     slog.LevelError,
+		Level: slog.LevelError,
 	}))
 	if err := envconfig.Process("", &cfg); err != nil {
 		log.Error("Failed to parse configs", slog.Any("error", err))
@@ -42,8 +41,7 @@ func main() {
 		os.Exit(1)
 	}
 	log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		AddSource: true,
-		Level:     level,
+		Level: level,
 	}))
 
 	if err := realMain(log, cfg); err != nil && !errors.Is(err, http.ErrServerClosed) {
