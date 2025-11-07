@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  kaedama:
+    build: .
+    image: kaedama:latest
+    container_name: kaedama
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - ENV=development
+      - PORT=3000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+      - CACHE_TTL=300
+      - REQUEST_TIMEOUT=30000
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - kaedama-network
+
+networks:
+  kaedama-network:
+    driver: bridge
