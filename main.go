@@ -30,12 +30,21 @@ func main() {
 	var cfg Config
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
-		Level:     slog.LevelInfo,
+		Level:     slog.LevelError,
 	}))
 	if err := envconfig.Process("", &cfg); err != nil {
 		log.Error("Failed to parse configs", slog.Any("error", err))
 		os.Exit(1)
 	}
+	var level slog.Level
+	if err := level.UnmarshalText([]byte(cfg.LogLevel)); err != nil {
+		log.Error("Failed to parse log level", slog.Any("error", err))
+		os.Exit(1)
+	}
+	log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     level,
+	}))
 
 	if err := realMain(log, cfg); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Error("Failed to startup server", slog.Any("error", err))
