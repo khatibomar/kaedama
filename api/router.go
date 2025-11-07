@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/khatibomar/kaedama/internal/service/proxy"
+	"github.com/khatibomar/kaedama/proxy"
 )
 
 type api struct {
