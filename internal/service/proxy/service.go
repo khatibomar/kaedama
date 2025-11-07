@@ -1,7 +1,7 @@
 package proxy
 
-type service struct{}
+type Service struct{}
 
-func New() *service {
-	return &service{}
+func New() *Service {
+	return &Service{}
 }

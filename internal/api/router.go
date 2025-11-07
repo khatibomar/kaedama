@@ -3,18 +3,14 @@ package api
 import (
 	"net/http"
 
-	"github.com/khatibomar/kaedama/internal/domain/dto"
+	"github.com/khatibomar/kaedama/internal/service/proxy"
 )
 
-type proxyService interface {
-	ProxyURL(requestURL string) (*dto.ProxyResult, error)
-}
-
 type api struct {
-	proxyService proxyService
+	proxyService *proxy.Service
 }
 
-func New(proxyService proxyService) http.Handler {
+func New(proxyService *proxy.Service) http.Handler {
 	api := &api{
 		proxyService: proxyService,
 	}
