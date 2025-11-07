@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	domainError "github.com/khatibomar/kaedama/internal/domain/domainerror"
+	"github.com/khatibomar/kaedama/proxy"
 )
 
 func (api *api) handleProxy(rw http.ResponseWriter, req *http.Request) {
@@ -21,9 +21,9 @@ func (api *api) handleProxy(rw http.ResponseWriter, req *http.Request) {
 
 	url := urls[0]
 
-	resp, err := api.proxyService.ProxyURL(url)
+	resp, err := api.proxyService.URL(url)
 	if err != nil {
-		var errValidation *domainError.ValidationError
+		var errValidation *proxy.ValidationError
 		if errors.As(err, &errValidation) {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
