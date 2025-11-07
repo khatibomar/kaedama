@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/khatibomar/kaedama/internal/api"
 	"github.com/khatibomar/kaedama/internal/config"
@@ -15,7 +16,13 @@ func main() {
 
 	address := ":" + config.Port
 
-	err := http.ListenAndServe(address, handler)
+	server := &http.Server{
+		Addr:              address,
+		Handler:           handler,
+		ReadHeaderTimeout: 3 * time.Second,
+	}
+
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}

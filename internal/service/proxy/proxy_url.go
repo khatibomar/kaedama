@@ -3,8 +3,8 @@ package proxy
 import (
 	"net/url"
 
+	domainError "github.com/khatibomar/kaedama/internal/domain/domainerror"
 	"github.com/khatibomar/kaedama/internal/domain/dto"
-	domainError "github.com/khatibomar/kaedama/internal/domain/error"
 )
 
 func (s *Service) ProxyURL(requestURL string) (*dto.ProxyResult, error) {
@@ -16,5 +16,5 @@ func (s *Service) ProxyURL(requestURL string) (*dto.ProxyResult, error) {
 	// TODO add url processing
 	_ = url
 
-	return nil, nil
+	return &dto.ProxyResult{}, nil
 }
