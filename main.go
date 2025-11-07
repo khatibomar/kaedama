@@ -21,7 +21,7 @@ type Config struct {
 	Port           int    `default:"3000"        envconfig:"PORT"`
 	Host           string `default:"0.0.0.0"     envconfig:"HOST"`
 	Env            string `default:"development" envconfig:"ENV"`
-	LogLevel       string `default:"info"        envconfig:"LOG_LEVEL"`
+	LogLevel       string `default:"debug"       envconfig:"LOG_LEVEL"`
 	CacheTTL       int    `default:"300"         envconfig:"CACHE_TTL"`
 	RequestTimeout int    `default:"30000"       envconfig:"REQUEST_TIMEOUT"`
 }
@@ -29,8 +29,7 @@ type Config struct {
 func main() {
 	var cfg Config
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		AddSource: true,
-		Level:     slog.LevelError,
+		Level: slog.LevelError,
 	}))
 	if err := envconfig.Process("", &cfg); err != nil {
 		log.Error("Failed to parse configs", slog.Any("error", err))
@@ -42,8 +41,7 @@ func main() {
 		os.Exit(1)
 	}
 	log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		AddSource: true,
-		Level:     level,
+		Level: level,
 	}))
 
 	if err := realMain(log, cfg); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -57,7 +55,7 @@ func realMain(log *slog.Logger, cfg Config) error {
 	defer cancel()
 
 	proxyService := proxy.New()
-	handler := api.New(proxyService)
+	handler := api.New(log, proxyService)
 
 	address := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	server := &http.Server{

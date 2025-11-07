@@ -7,15 +7,15 @@ import (
 	"github.com/khatibomar/kaedama/proxy"
 )
 
-func (api *api) handleProxy(rw http.ResponseWriter, req *http.Request) {
-	urls, ok := req.URL.Query()["url"]
+func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
+	urls, ok := r.URL.Query()["url"]
 	if !ok {
-		http.Error(rw, "must provide url", http.StatusBadRequest)
+		http.Error(w, "must provide url", http.StatusBadRequest)
 		return
 	}
 
 	if len(urls) != 1 {
-		http.Error(rw, "must contain only one url", http.StatusBadRequest)
+		http.Error(w, "must contain only one url", http.StatusBadRequest)
 		return
 	}
 
@@ -25,13 +25,19 @@ func (api *api) handleProxy(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		var errValidation *proxy.ValidationError
 		if errors.As(err, &errValidation) {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	rw.Header().Set("Content-Type", resp.ContentType)
+	w.Header().Set("Content-Type", resp.ContentType)
+}
+
+func (api *api) handleHealth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(http.StatusText(http.StatusOK)))
 }
