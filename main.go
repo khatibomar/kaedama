@@ -21,7 +21,7 @@ type Config struct {
 	Port           int    `default:"3000"        envconfig:"PORT"`
 	Host           string `default:"0.0.0.0"     envconfig:"HOST"`
 	Env            string `default:"development" envconfig:"ENV"`
-	LogLevel       string `default:"info"        envconfig:"LOG_LEVEL"`
+	LogLevel       string `default:"debug"       envconfig:"LOG_LEVEL"`
 	CacheTTL       int    `default:"300"         envconfig:"CACHE_TTL"`
 	RequestTimeout int    `default:"30000"       envconfig:"REQUEST_TIMEOUT"`
 }
@@ -57,7 +57,7 @@ func realMain(log *slog.Logger, cfg Config) error {
 	defer cancel()
 
 	proxyService := proxy.New()
-	handler := api.New(proxyService)
+	handler := api.New(log, proxyService)
 
 	address := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	server := &http.Server{

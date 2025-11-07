@@ -23,3 +23,12 @@ docker-up:
 .PHONY: docker-down
 docker-down:
 	docker compose down
+
+#-- Curl
+.PHONY: call-health
+call-health:
+	curl -v localhost:3000/v1/health
+
+.PHONY: call-proxy
+call-proxy:
+	curl -v localhost:3000/v1/proxy?url=waifu
