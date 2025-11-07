@@ -66,18 +66,24 @@ func realMain(log *slog.Logger, cfg Config) error {
 		ReadHeaderTimeout: 3 * time.Second,
 	}
 
+	errCh := make(chan error, 1)
+
 	go func() {
 		log.InfoContext(ctx, "starting server", "addr", server.Addr, "env", cfg.Env)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Error(
-				"failed to listen and serve",
-				slog.String("address", address),
-				slog.Any("error", err),
-			)
-			os.Exit(1)
+			errCh <- err
 		}
 	}()
 
-	<-ctx.Done()
-	return nil
+	select {
+	case <-ctx.Done():
+		// graceful shutdown
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		return server.Shutdown(shutdownCtx)
+
+	case err := <-errCh:
+		// startup or runtime failure
+		return fmt.Errorf("server failed: %w", err)
+	}
 }
