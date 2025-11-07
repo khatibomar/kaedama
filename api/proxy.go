@@ -37,8 +37,7 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *api) handleHealth(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-
 	_, _ = w.Write([]byte(http.StatusText(http.StatusOK)))
 }
