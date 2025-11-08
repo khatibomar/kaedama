@@ -49,13 +49,9 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 
 	// Process M3U8 content if needed
 	if proxy.IsM3U8ContentType(resp.ContentType) || proxy.IsM3U8URL(targetURL) {
-		proxyURL := r.URL.Scheme
-		if proxyURL == "" {
-			proxyURL = "http"
-		}
-		proxyURL = proxyURL + "://" + r.Host + GetOriginalPath(r)
+		proxyURI := "/proxy"
 
-		processedContent := api.proxyService.ProcessM3U8(resp.Content, parsedOriginalURL, proxyURL)
+		processedContent := api.proxyService.ProcessM3U8(resp.Content, parsedOriginalURL, proxyURI)
 		_, _ = w.Write([]byte(processedContent))
 	} else {
 		// Write raw content for non-M3U8 responses

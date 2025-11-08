@@ -143,29 +143,31 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 			matches := re.FindAllStringSubmatch(line, -1)
 
 			for _, match := range matches {
-				originalURL := match[1]
-				if strings.HasPrefix(originalURL, proxyURL) {
+				originalURI := match[1]
+				if strings.HasPrefix(originalURI, proxyURL) {
+					processedLines = append(processedLines, line)
 					continue
 				}
 
-				var absoluteURL string
-				if strings.HasPrefix(originalURL, "http://") || strings.HasPrefix(originalURL, "https://") {
-					absoluteURL = originalURL
-				} else if strings.HasPrefix(originalURL, "//") {
+				var absoluteURI string
+				if strings.HasPrefix(originalURI, "http://") || strings.HasPrefix(originalURI, "https://") {
+					absoluteURI = originalURI
+				} else if strings.HasPrefix(originalURI, "//") {
 					// Protocol-relative URL
-					absoluteURL = fmt.Sprintf("%s%s", baseURL.Scheme, originalURL)
+					absoluteURI = fmt.Sprintf("%s%s", baseURL.Scheme, originalURI)
 				} else {
 					// Relative URL
-					absoluteURL = fmt.Sprintf("%s%s", basePath, originalURL)
+					absoluteURI = fmt.Sprintf("%s%s", basePath, originalURI)
 				}
 
-				proxiedURL := fmt.Sprintf("%s?url=%s", proxyURL, url.QueryEscape(absoluteURL))
+				proxiedURL := fmt.Sprintf("%s?url=%s", proxyURL, url.QueryEscape(absoluteURI))
 
-				line = strings.ReplaceAll(line, fmt.Sprintf(`URI="%s"`, originalURL), fmt.Sprintf(`URI="%s"`, proxiedURL))
+				line = strings.ReplaceAll(line, fmt.Sprintf(`URI="%s"`, originalURI), fmt.Sprintf(`URI="%s"`, proxiedURL))
 				processedLines = append(processedLines, line)
 				continue
 			}
 			processedLines = append(processedLines, line)
+			continue
 		}
 
 		if len(trimmedLine) > 0 {
@@ -188,6 +190,7 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 			proxiedURL := fmt.Sprintf("%s?url=%s", proxyURL, url.QueryEscape(absoluteURL))
 
 			processedLines = append(processedLines, proxiedURL)
+			continue
 		}
 	}
 
