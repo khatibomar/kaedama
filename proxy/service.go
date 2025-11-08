@@ -190,7 +190,13 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 		}
 	}
 
-	return strings.Join(processedLines, "\n")
+	result := strings.Join(processedLines, "\n")
+
+	if unescaped, err := url.QueryUnescape(result); err == nil {
+		return unescaped
+	}
+
+	return result
 }
 
 // DecompressContent decompresses content if needed (gzip, deflate, zlib, brotli, zstd)
