@@ -27,22 +27,22 @@ type Config struct {
 }
 
 func main() {
-	var cfg Config
+	var (
+		cfg   Config
+		level slog.LevelVar
+	)
+	level.Set(slog.LevelError)
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelError,
+		Level: &level,
 	}))
 	if err := envconfig.Process("", &cfg); err != nil {
 		log.Error("Failed to parse configs", slog.Any("error", err))
 		os.Exit(1)
 	}
-	var level slog.Level
 	if err := level.UnmarshalText([]byte(cfg.LogLevel)); err != nil {
 		log.Error("Failed to parse log level", slog.Any("error", err))
 		os.Exit(1)
 	}
-	log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: level,
-	}))
 
 	if err := realMain(log, cfg); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Error("Failed to startup server", slog.Any("error", err))
