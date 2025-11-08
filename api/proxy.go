@@ -27,7 +27,7 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := api.proxyService.URL(parsedOriginalURL)
+	resp, err := api.proxyService.URL(r.Context(), parsedOriginalURL)
 	if err != nil {
 		var errValidation *proxy.ValidationError
 		if errors.As(err, &errValidation) {

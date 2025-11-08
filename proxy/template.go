@@ -53,7 +53,11 @@ var templates = []template{
 	{regexp.MustCompile(`(?i)\.raffaellocdn\.net$`), "https://streameeeeee.site", "https://streameeeeee.site/", "", nil},
 
 	// Megacloud related domains
-	{regexp.MustCompile(`(?i)(dewbreeze84|mistyvalley31)\.(online|live)$`), "https://megacloud.blog", "https://megacloud.blog/", "", nil},
+	{
+		regexp.MustCompile(
+			`(?i)(dewbreeze84|mistyvalley31)\.(online|live)$`),
+		"https://megacloud.blog", "https://megacloud.blog/", "", nil,
+	},
 	{
 		regexp.MustCompile(`(?i)douvid\.xyz$`),
 		"https://megacloud.blog",
@@ -101,8 +105,14 @@ var templates = []template{
 	{regexp.MustCompile(`(?i)vmeas\.cloud$`), "https://vidmoly.to", "https://vidmoly.to/", "", nil},
 
 	// Nextwaveinitiative and shadowlandschronicles (edgedeliverynetwork)
-	{regexp.MustCompile(`(?i)nextwaveinitiative\.xyz$`), "https://edgedeliverynetwork.org", "https://edgedeliverynetwork.org/", "", nil},
-	{regexp.MustCompile(`(?i)shadowlandschronicles\.com$`), "https://edgedeliverynetwork.org", "https://edgedeliverynetwork.org/", "", nil},
+	{
+		regexp.MustCompile(`(?i)nextwaveinitiative\.xyz$`),
+		"https://edgedeliverynetwork.org", "https://edgedeliverynetwork.org/", "", nil,
+	},
+	{
+		regexp.MustCompile(`(?i)shadowlandschronicles\.com$`),
+		"https://edgedeliverynetwork.org", "https://edgedeliverynetwork.org/", "", nil,
+	},
 
 	// Lightning bolts and vidsrc related
 	{regexp.MustCompile(`(?i)lightningbolts\.ru$`), "https://vidsrc.cc", "https://vidsrc.cc/", "", nil},
@@ -151,7 +161,10 @@ var templates = []template{
 	{regexp.MustCompile(`(?i)\.vkcdn5\.com$`), "https://vkspeed.com", "https://vkspeed.com/", "", nil},
 
 	// Cloudfront CDN
-	{regexp.MustCompile(`(?i)\.cloudfront\.net$`), "https://d2zihajmogu5jn.cloudfront.net", "https://d2zihajmogu5jn.cloudfront.net/", "", nil},
+	{
+		regexp.MustCompile(`(?i)\.cloudfront\.net$`),
+		"https://d2zihajmogu5jn.cloudfront.net", "https://d2zihajmogu5jn.cloudfront.net/", "", nil,
+	},
 
 	// Twitch CDN
 	{regexp.MustCompile(`(?i)\.ttvnw\.net$`), "https://www.twitch.tv", "https://www.twitch.tv/", "", nil},

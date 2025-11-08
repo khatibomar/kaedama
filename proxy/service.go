@@ -7,6 +7,7 @@ import (
 	"compress/zlib"
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,6 +27,7 @@ type Service struct {
 func New() *Service {
 	// Create HTTP client with custom transport for better performance
 	transport := &http.Transport{
+		//nolint:gosec // I don't know sec stuff.
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: false,
 		},
@@ -63,12 +65,12 @@ type Result struct {
 	Content     []byte
 }
 
-func (s *Service) URL(requestURL *url.URL) (*Result, error) {
+func (s *Service) URL(ctx context.Context, requestURL *url.URL) (*Result, error) {
 	targetURL := requestURL.String()
 
 	headers := GenerateHeaders(requestURL)
 
-	req, err := http.NewRequest("GET", targetURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -79,12 +81,11 @@ func (s *Service) URL(requestURL *url.URL) (*Result, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	req = req.WithContext(ctx)
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		if ctx.Err() == context.DeadlineExceeded {
-			return nil, fmt.Errorf("request timed out after 30s")
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, errors.New("request timed out after 30s")
 		}
 		return nil, fmt.Errorf("proxy request failed: %w", err)
 	}
@@ -129,7 +130,7 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 	if strings.HasSuffix(basePath, ".m3u8") {
 		basePath = basePath[:strings.LastIndex(basePath, "/")+1]
 	} else if !strings.HasSuffix(basePath, "/") {
-		basePath = basePath + "/"
+		basePath += "/"
 	}
 
 	lines := strings.Split(string(content), "\n")
@@ -199,7 +200,8 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 	return result
 }
 
-// DecompressContent decompresses content if needed (gzip, deflate, zlib, brotli, zstd)
+// DecompressContent decompresses content if needed (gzip, deflate, zlib,
+// brotli, zstd).
 func (s *Service) DecompressContent(content []byte, encoding string) ([]byte, error) {
 	if encoding == "" {
 		return content, nil
