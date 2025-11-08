@@ -14,6 +14,7 @@ type api struct {
 func New(
 	log *slog.Logger,
 	proxyService *proxy.Service,
+	corsOrigins string,
 ) http.Handler {
 	api := &api{
 		proxyService: proxyService,
@@ -26,8 +27,9 @@ func New(
 	v1.HandleFunc("/proxy", api.handleProxy)
 
 	loggingMiddleware := loggingMiddleware(log)
+	cors := corsMiddleware(corsOrigins)
 
-	mux.Handle("/v1/", http.StripPrefix("/v1", loggingMiddleware(v1)))
+	mux.Handle("/v1/", http.StripPrefix("/v1", cors(loggingMiddleware(v1))))
 
 	return mux
 }

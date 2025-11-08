@@ -24,6 +24,7 @@ type Config struct {
 	LogLevel       string `default:"debug"       envconfig:"LOG_LEVEL"`
 	CacheTTL       int    `default:"300"         envconfig:"CACHE_TTL"`
 	RequestTimeout int    `default:"30000"       envconfig:"REQUEST_TIMEOUT"`
+	CORSOrigins    string `default:"*"           envconfig:"CORS_ORIGINS"`
 }
 
 func main() {
@@ -55,7 +56,7 @@ func realMain(log *slog.Logger, cfg Config) error {
 	defer cancel()
 
 	proxyService := proxy.New()
-	handler := api.New(log, proxyService)
+	handler := api.New(log, proxyService, cfg.CORSOrigins)
 
 	address := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	server := &http.Server{
