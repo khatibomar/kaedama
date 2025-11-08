@@ -1,11 +1,37 @@
 package api
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"strings"
 	"time"
 )
+
+// Context key for storing original path
+type contextKey string
+
+const originalPathKey contextKey = "originalPath"
+
+// preserveOriginalPath middleware stores the original URL path in context
+func preserveOriginalPath() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Store original path in context
+			ctx := context.WithValue(r.Context(), originalPathKey, r.URL.Path)
+			r = r.WithContext(ctx)
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// GetOriginalPath retrieves the original path from context
+func GetOriginalPath(r *http.Request) string {
+	if path, ok := r.Context().Value(originalPathKey).(string); ok {
+		return path
+	}
+	return r.URL.Path
+}
 
 func loggingMiddleware(log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

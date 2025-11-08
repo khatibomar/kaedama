@@ -49,12 +49,11 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 
 	// Process M3U8 content if needed
 	if proxy.IsM3U8ContentType(resp.ContentType) || proxy.IsM3U8URL(targetURL) {
-		// Get the proxy URL for rewriting
 		proxyURL := r.URL.Scheme
 		if proxyURL == "" {
 			proxyURL = "http"
 		}
-		proxyURL = proxyURL + "://" + r.Host + r.URL.Path
+		proxyURL = proxyURL + "://" + r.Host + GetOriginalPath(r)
 
 		processedContent := api.proxyService.ProcessM3U8(resp.Content, parsedOriginalURL, proxyURL)
 		_, _ = w.Write([]byte(processedContent))

@@ -28,8 +28,9 @@ func New(
 
 	loggingMiddleware := loggingMiddleware(log)
 	cors := corsMiddleware(corsOrigins)
+	preservePath := preserveOriginalPath()
 
-	mux.Handle("/v1/", http.StripPrefix("/v1", cors(loggingMiddleware(v1))))
+	mux.Handle("/v1/", preservePath(http.StripPrefix("/v1", cors(loggingMiddleware(v1)))))
 
 	return mux
 }
