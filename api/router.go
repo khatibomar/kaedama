@@ -21,16 +21,13 @@ func New(
 	}
 
 	mux := http.NewServeMux()
-
-	v1 := http.NewServeMux()
-	v1.HandleFunc("/health", api.handleHealth)
-	v1.HandleFunc("/proxy", api.handleProxy)
+	mux.HandleFunc("/health", api.handleHealth)
+	mux.HandleFunc("/proxy", api.handleProxy)
 
 	loggingMiddleware := loggingMiddleware(log)
 	cors := corsMiddleware(corsOrigins)
-	preservePath := preserveOriginalPath()
+	handler := http.Handler(mux)
+	handler = cors(loggingMiddleware(handler))
 
-	mux.Handle("/v1/", preservePath(http.StripPrefix("/v1", cors(loggingMiddleware(v1)))))
-
-	return mux
+	return handler
 }
