@@ -18,7 +18,7 @@ import (
 )
 
 type Config struct {
-	Port           int    `default:"3000"        envconfig:"PORT"`
+	Port           int    `default:"4140"        envconfig:"PORT"`
 	Host           string `default:"0.0.0.0"     envconfig:"HOST"`
 	Env            string `default:"development" envconfig:"ENV"`
 	LogLevel       string `default:"debug"       envconfig:"LOG_LEVEL"`
