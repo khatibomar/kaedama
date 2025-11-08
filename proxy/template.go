@@ -21,26 +21,41 @@ const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Ge
 
 // templates contains domain-specific anti-hotlinking rules.
 var templates = []template{
-	{regexp.MustCompile(`\.padorupado\.ru$`), "https://kwik.si", "https://kwik.si/", "", nil},
-	{regexp.MustCompile(`krussdomi\.com$`), "https://krussdomi.com", "https://hls.krussdomi.com/", "", nil},
-	{regexp.MustCompile(`\.narutokun\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
-	{regexp.MustCompile(`\.babybayw\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
-	{regexp.MustCompile(`\.advancedairesearchlab\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
-	{regexp.MustCompile(`\.habibikun\.xyz$`), "https://bl.krussdomi.com", "https://bl.krussdomi.com/", "", nil},
-	{regexp.MustCompile(`\.akamaized\.net$`), "https://bl.krussdomi.com", "https://bl.krussdomi.com/", "", nil},
-	{regexp.MustCompile(`\.anih1\.top$`), "https://ee.anih1.top", "https://ee.anih1.top/", "", nil},
-	{regexp.MustCompile(`\.xyk3\.top$`), "https://ee.anih1.top", "https://ee.anih1.top/", "", nil},
-	{regexp.MustCompile(`\.premilkyway\.com$`), "https://uqloads.xyz", "https://uqloads.xyz/", "", nil},
-	{regexp.MustCompile(`\.kwikie\.ru$`), "https://kwik.si", "https://kwik.si/", "", nil},
+	// Padorupado.ru
+	{regexp.MustCompile(`(?i)\.padorupado\.ru$`), "https://kwik.si", "https://kwik.si/", "", nil},
+
+	// Krussdomi.com related
+	{regexp.MustCompile(`(?i)krussdomi\.com$`), "https://krussdomi.com", "https://hls.krussdomi.com/", "", nil},
+	{regexp.MustCompile(`(?i)\.narutokun\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
+	{regexp.MustCompile(`(?i)\.babybayw\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
+	{regexp.MustCompile(`(?i)\.advancedairesearchlab\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
+	{regexp.MustCompile(`(?i)\.habibikun\.xyz$`), "https://bl.krussdomi.com", "https://bl.krussdomi.com/", "", nil},
+	{regexp.MustCompile(`(?i)\.akamaized\.net$`), "https://bl.krussdomi.com", "https://bl.krussdomi.com/", "", nil},
+
+	// Anih1 related
+	{regexp.MustCompile(`(?i)\.anih1\.top$`), "https://ee.anih1.top", "https://ee.anih1.top/", "", nil},
+	{regexp.MustCompile(`(?i)\.xyk3\.top$`), "https://ee.anih1.top", "https://ee.anih1.top/", "", nil},
+
+	// Premilkyway
+	{regexp.MustCompile(`(?i)\.premilkyway\.com$`), "https://uqloads.xyz", "https://uqloads.xyz/", "", nil},
+
+	// Kwikie.ru
+	{regexp.MustCompile(`(?i)\.kwikie\.ru$`), "https://kwik.si", "https://kwik.si/", "", nil},
+
+	// Various xyz domains (krussdomi.com related)
 	{
-		regexp.MustCompile(`(revolutionizingtheweb|nextgentechnologytrends|smartinvestmentstrategies|` +
+		regexp.MustCompile(`(?i)(revolutionizingtheweb|nextgentechnologytrends|smartinvestmentstrategies|` +
 			`creativedesignstudioxyz|breakingdigitalboundaries|ultimatetechinnovation)\.xyz$`),
 		"https://hls.krussdomi.com", "https://hls.krussdomi.com/", "", nil,
 	},
-	{regexp.MustCompile(`\.raffaellocdn\.net$`), "https://streameeeeee.site", "https://streameeeeee.site/", "", nil},
-	{regexp.MustCompile(`(dewbreeze84|mistyvalley31)\.(online|live)$`), "https://megacloud.blog", "https://megacloud.blog/", "", nil},
+
+	// Raffaellocdn.net
+	{regexp.MustCompile(`(?i)\.raffaellocdn\.net$`), "https://streameeeeee.site", "https://streameeeeee.site/", "", nil},
+
+	// Megacloud related domains
+	{regexp.MustCompile(`(?i)(dewbreeze84|mistyvalley31)\.(online|live)$`), "https://megacloud.blog", "https://megacloud.blog/", "", nil},
 	{
-		regexp.MustCompile(`douvid\.xyz$`),
+		regexp.MustCompile(`(?i)douvid\.xyz$`),
 		"https://megacloud.blog",
 		"https://megacloud.blog/",
 		"",
@@ -52,7 +67,94 @@ var templates = []template{
 			"sec-fetch-site":  "cross-site",
 		},
 	},
-	// (You can continue adding the remaining patterns the same way...)
+
+	// Lightning/Storm/Weather themed domains (Megacloud related)
+	{
+		regexp.MustCompile(`(?i)(lightningspark77|thunderwave48|stormwatch95|windyrays29|thunderstrike77|fogtwist21|` +
+			`rainfallpath36|lightningflash39|stormwhirl73|cloudburst82|drizzleshower19)\.` +
+			`(pro|site|xyz|online|live)$`),
+		"https://megacloud.club", "https://megacloud.club/", "", nil,
+	},
+
+	// Clear sky drift
+	{regexp.MustCompile(`(?i)clearskydrift45\.site$`), "https://kerolaunochan.online", "https://kerolaunochan.online/", "", nil},
+
+	// Cloudnestra related
+	{regexp.MustCompile(`(?i)\.shadowlandschronicles\.com$`), "https://cloudnestra.com", "https://cloudnestra.com/", "", nil},
+	{
+		regexp.MustCompile(`(?i)(sparkrisestudios|dreamwavecollective|urbansagecollective|novaquestdynamics|boldsageventures)\.xyz$`),
+		"https://cloudnestra.com", "https://cloudnestra.com/", "", nil,
+	},
+	{regexp.MustCompile(`(?i)putgate\.org$`), "https://cloudnestra.com", "https://cloudnestra.com/", "", nil},
+
+	// Southboat.site
+	{regexp.MustCompile(`(?i)\.southboat\.site$`), "https://player.videasy.net", "https://player.videasy.net/", "", nil},
+
+	// Cdnup.cc and streamupcdn.com
+	{regexp.MustCompile(`(?i)\.cdnup\.cc$`), "https://bestwish.lol", "https://bestwish.lol/", "", nil},
+	{regexp.MustCompile(`(?i)\.streamupcdn\.com$`), "https://bestwish.lol", "https://bestwish.lol/", "", nil},
+
+	// Netmagcdn.com
+	{regexp.MustCompile(`(?i)\.netmagcdn\.com$`), "https://megacloud.club", "https://megacloud.club/", "", nil},
+
+	// Vmeas.cloud
+	{regexp.MustCompile(`(?i)vmeas\.cloud$`), "https://vidmoly.to", "https://vidmoly.to/", "", nil},
+
+	// Nextwaveinitiative and shadowlandschronicles (edgedeliverynetwork)
+	{regexp.MustCompile(`(?i)nextwaveinitiative\.xyz$`), "https://edgedeliverynetwork.org", "https://edgedeliverynetwork.org/", "", nil},
+	{regexp.MustCompile(`(?i)shadowlandschronicles\.com$`), "https://edgedeliverynetwork.org", "https://edgedeliverynetwork.org/", "", nil},
+
+	// Lightning bolts and vidsrc related
+	{regexp.MustCompile(`(?i)lightningbolts\.ru$`), "https://vidsrc.cc", "https://vidsrc.cc/", "", nil},
+	{regexp.MustCompile(`(?i)\.xelvonwave64\.xyz$`), "https://vidsrc.su", "https://vidsrc.su/", "", nil},
+	{regexp.MustCompile(`(?i)lightningbolt\.site$`), "https://vidsrc.cc", "https://vidsrc.cc/", "", nil},
+	{regexp.MustCompile(`(?i)vyebzzqlojvrl\.top$`), "https://vidsrc.cc", "https://vidsrc.cc/", "", nil},
+
+	// Vidlvod.store
+	{regexp.MustCompile(`(?i)vidlvod\.store$`), "https://vidlink.pro", "https://vidlink.pro/", "", nil},
+
+	// Megacloud Store domains (extended weather-themed list)
+	{
+		regexp.MustCompile(`(?i)(sunnybreeze16|mgstatics|cloudydrift38|stormwhirl73|odyssey|rainveil36|` +
+			`sunshinerays93|sunburst66|sunburst93|windytrail24|stormshade84|clearskyline88|clearbluesky72|` +
+			`breezygale56|haildrop77|frostshine12|frostbite27|frostywinds57|icyhailstorm64|icyhailstorm29|` +
+			`windflash93|stormdrift27|tempestcloud61|rainfallpath36)\.` +
+			`(live|site|xyz|online|pro|biz|wiki)$`),
+		"https://megacloud.blog", "https://megacloud.blog/", "", nil,
+	},
+
+	// Odyssey domains (megacloud related)
+	{regexp.MustCompile(`(?i)odyssey-\d+\.biz$`), "https://megaup.live", "https://megaup.live/", "", nil},
+
+	// 1stkmgv1.com
+	{regexp.MustCompile(`(?i)1stkmgv1\.com$`), "https://vidmoly.to", "https://vidmoly.to/", "", nil},
+
+	// Rainstorm92.xyz
+	{regexp.MustCompile(`(?i)rainstorm92\.xyz$`), "https://megacloud.club", "https://megacloud.club/", "", nil},
+
+	// Feetcdn.com
+	{regexp.MustCompile(`(?i)\.feetcdn\.com$`), "https://kerolaunochan.online", "https://kerolaunochan.online/", "", nil},
+
+	// Kerolaunochan.live domains
+	{
+		regexp.MustCompile(`(?i)(heatwave90|humidmist27|frozenbreeze65|drizzlerain73|sunrays81)\.` +
+			`(pro|wiki|live|online|xyz)$`),
+		"https://kerolaunochan.live", "https://kerolaunochan.live/", "", nil,
+	},
+
+	// Embed.su related
+	{regexp.MustCompile(`(?i)embed\.su$`), "https://embed.su", "https://embed.su/", "", nil},
+	{regexp.MustCompile(`(?i)usbigcdn\.cc$`), "https://embed.su", "https://embed.su/", "", nil},
+	{regexp.MustCompile(`(?i)\.congacdn\.cc$`), "https://embed.su", "https://embed.su/", "", nil},
+
+	// Vkcdn5.com
+	{regexp.MustCompile(`(?i)\.vkcdn5\.com$`), "https://vkspeed.com", "https://vkspeed.com/", "", nil},
+
+	// Cloudfront CDN
+	{regexp.MustCompile(`(?i)\.cloudfront\.net$`), "https://d2zihajmogu5jn.cloudfront.net", "https://d2zihajmogu5jn.cloudfront.net/", "", nil},
+
+	// Twitch CDN
+	{regexp.MustCompile(`(?i)\.ttvnw\.net$`), "https://www.twitch.tv", "https://www.twitch.tv/", "", nil},
 }
 
 // FindDomainTemplate returns the first template that matches a given hostname.
