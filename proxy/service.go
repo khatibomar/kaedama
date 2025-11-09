@@ -27,9 +27,9 @@ type Service struct {
 func New() *Service {
 	// Create HTTP client with custom transport for better performance
 	transport := &http.Transport{
-		//nolint:gosec // I don't know sec stuff.
+		//nolint:gosec // Disable SSL certificate verification
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: false,
+			InsecureSkipVerify: true, // This ignores SSL certificate errors
 		},
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 30,
