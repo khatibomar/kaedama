@@ -290,3 +290,9 @@ func IsM3U8ContentType(contentType string) bool {
 	}
 	return false
 }
+
+func IsActualM3U8Content(content []byte) bool {
+	contentStr := strings.TrimSpace(string(content))
+	res := strings.HasPrefix(contentStr, "#EXTM3U") || strings.HasPrefix(contentStr, "#EXT-X-STREAM-INF")
+	return res
+}
