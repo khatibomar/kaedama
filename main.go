@@ -55,8 +55,9 @@ func realMain(log *slog.Logger, cfg Config) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
+	cacheTTL := time.Duration(cfg.CacheTTL) * time.Second
 	proxyService := proxy.New()
-	handler := api.New(log, proxyService, cfg.CORSOrigins)
+	handler := api.New(log, proxyService, cfg.CORSOrigins, cacheTTL)
 
 	address := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	server := &http.Server{

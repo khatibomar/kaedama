@@ -37,6 +37,7 @@ linters:
     - noinlineerr # prize for worst linter ever
     - embeddedstructfieldcheck
     - gosmopolitan
+    - godot
   settings:
     staticcheck:
       # dot-import-whitelist: [] # Note: not yet working
