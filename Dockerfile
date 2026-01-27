@@ -8,7 +8,8 @@ COPY . .
 
 RUN CGO_ENABLED=0 go build -trimpath -ldflags=-s -o kaedama .
 
-FROM scratch
+FROM alpine:latest
+RUN apk add --no-cache ca-certificates wget
 COPY --from=build /build/src/kaedama /usr/bin/kaedama
 
 ENTRYPOINT ["/usr/bin/kaedama"]
