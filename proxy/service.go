@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -65,7 +66,70 @@ type Result struct {
 	Content     []byte
 }
 
+var privateIPRanges = buildPrivateIPRanges()
+
+func buildPrivateIPRanges() []*net.IPNet {
+	cidrs := []string{
+		"0.0.0.0/8",      // "This" network
+		"10.0.0.0/8",     // RFC 1918 private
+		"100.64.0.0/10",  // CGNAT (RFC 6598)
+		"127.0.0.0/8",    // Loopback
+		"169.254.0.0/16", // Link-local (incl. AWS/GCP/Azure metadata)
+		"172.16.0.0/12",  // RFC 1918 private
+		"192.168.0.0/16", // RFC 1918 private
+		"::1/128",        // IPv6 loopback
+		"fc00::/7",       // IPv6 unique local
+		"fe80::/10",      // IPv6 link-local
+	}
+	ranges := make([]*net.IPNet, 0, len(cidrs))
+	for _, cidr := range cidrs {
+		_, block, err := net.ParseCIDR(cidr)
+		if err != nil {
+			panic(fmt.Sprintf("invalid CIDR %s: %v", cidr, err))
+		}
+		ranges = append(ranges, block)
+	}
+	return ranges
+}
+
+func isPrivateIP(ip net.IP) bool {
+	for _, block := range privateIPRanges {
+		if block.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
+func validateURL(ctx context.Context, u *url.URL) error {
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return &ValidationError{err: fmt.Errorf("invalid scheme %q: only http and https are allowed", u.Scheme)}
+	}
+
+	host := u.Hostname()
+	addrs, err := net.DefaultResolver.LookupHost(ctx, host)
+	if err != nil {
+		return &ValidationError{err: fmt.Errorf("failed to resolve host: %w", err)}
+	}
+
+	for _, addr := range addrs {
+		ip := net.ParseIP(addr)
+		if ip == nil {
+			continue
+		}
+		if isPrivateIP(ip) {
+			return &ValidationError{err: errors.New("target URL resolves to a private or reserved address")}
+		}
+	}
+
+	return nil
+}
+
 func (s *Service) URL(ctx context.Context, requestURL *url.URL) (*Result, error) {
+	if err := validateURL(ctx, requestURL); err != nil {
+		return nil, err
+	}
+
 	targetURL := requestURL.String()
 
 	headers := GenerateHeaders(requestURL)
@@ -82,7 +146,7 @@ func (s *Service) URL(ctx context.Context, requestURL *url.URL) (*Result, error)
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	resp, err := s.client.Do(req)
+	resp, err := s.client.Do(req) //nolint:gosec // G704: URL validated by validateURL before this call
 	if err != nil {
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			return nil, errors.New("request timed out after 30s")

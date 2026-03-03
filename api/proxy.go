@@ -46,7 +46,7 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 			}
 			w.Header().Set("X-Cache", "HIT")
 			w.WriteHeader(cachedResp.Status)
-			_, _ = w.Write(cachedResp.Body)
+			_, _ = w.Write(cachedResp.Body) //nolint:gosec // G705: proxy passthrough by design
 			return
 		}
 	}
@@ -95,7 +95,7 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 		api.cache.Set(targetURL, cachedResp)
 	}
 
-	_, _ = w.Write(responseBody)
+	_, _ = w.Write(responseBody) //nolint:gosec // G705: proxy passthrough by design
 }
 
 func (api *api) handleHealth(w http.ResponseWriter, r *http.Request) {

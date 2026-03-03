@@ -125,7 +125,7 @@ var templates = []template{
 
 	// Megacloud Store domains (extended weather-themed list)
 	{
-		regexp.MustCompile(`(?i)(sunnybreeze16|mgstatics|cloudydrift38|stormwhirl73|odyssey|rainveil36|` +
+		regexp.MustCompile(`(?i)(sunnybreeze16|crimsonstorm18|mgstatics|cloudydrift38|stormwhirl73|odyssey|rainveil36|` +
 			`sunshinerays93|sunburst66|sunburst93|windytrail24|stormshade84|clearskyline88|clearbluesky72|` +
 			`breezygale56|haildrop77|frostshine12|frostbite27|frostywinds57|icyhailstorm64|icyhailstorm29|` +
 			`windflash93|stormdrift27|tempestcloud61|rainfallpath36)\.` +
