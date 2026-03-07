@@ -146,7 +146,7 @@ func (s *Service) URL(ctx context.Context, requestURL *url.URL) (*Result, error)
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	resp, err := s.client.Do(req) //nolint:gosec // G704: URL validated by validateURL before this call
+	resp, err := s.client.Do(req)
 	if err != nil {
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			return nil, errors.New("request timed out after 30s")
