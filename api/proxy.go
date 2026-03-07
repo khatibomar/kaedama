@@ -17,6 +17,31 @@ type CachedResponse struct {
 	Body        []byte
 }
 
+// remoteHeaderDenylist contains headers that the remote host must not be
+// allowed to set on our responses. These are managed exclusively by our own
+// middleware (e.g. corsMiddleware).
+var remoteHeaderDenylist = map[string]struct{}{
+	"Access-Control-Allow-Origin":      {},
+	"Access-Control-Allow-Methods":     {},
+	"Access-Control-Allow-Headers":     {},
+	"Access-Control-Allow-Credentials": {},
+	"Access-Control-Max-Age":           {},
+	"Access-Control-Expose-Headers":    {},
+	"Content-Type":                     {},
+	"Content-Length":                   {},
+	"Content-Encoding":                 {},
+}
+
+// stripRemoteHeaders copies headers from a remote response map into w,
+// skipping any header that we manage ourselves.
+func stripRemoteHeaders(w http.ResponseWriter, headers map[string]string) {
+	for k, v := range headers {
+		if _, denied := remoteHeaderDenylist[k]; !denied {
+			w.Header().Set(k, v)
+		}
+	}
+}
+
 func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 	urls, ok := r.URL.Query()["url"]
 	if !ok {
@@ -39,11 +64,7 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 	if cached, exists := api.cache.Get(targetURL); exists {
 		if cachedResp, ok := cached.(*CachedResponse); ok {
 			w.Header().Set("Content-Type", cachedResp.ContentType)
-			for k, v := range cachedResp.Headers {
-				if k != "Content-Type" && k != "Content-Length" && k != "Content-Encoding" {
-					w.Header().Set(k, v)
-				}
-			}
+			stripRemoteHeaders(w, cachedResp.Headers)
 			w.Header().Set("X-Cache", "HIT")
 			w.WriteHeader(cachedResp.Status)
 			_, _ = w.Write(cachedResp.Body) //nolint:gosec // G705: proxy passthrough by design
@@ -64,11 +85,7 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", resp.ContentType)
-	for k, v := range resp.Headers {
-		if k != "Content-Type" && k != "Content-Length" && k != "Content-Encoding" {
-			w.Header().Set(k, v)
-		}
-	}
+	stripRemoteHeaders(w, resp.Headers)
 	w.Header().Set("X-Cache", "MISS")
 	w.WriteHeader(resp.Status)
 
