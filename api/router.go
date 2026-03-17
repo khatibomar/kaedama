@@ -26,9 +26,9 @@ func New(
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/health", api.handleHealth)
-	mux.HandleFunc("/proxy", api.handleProxy)
-	mux.HandleFunc("/cache/clear", api.handleCacheClear)
+	mux.HandleFunc("GET /health", api.handleHealth)
+	mux.HandleFunc("GET /proxy", api.handleProxy)
+	mux.HandleFunc("GET /cache/clear", api.handleCacheClear)
 
 	loggingMiddleware := loggingMiddleware(log)
 	cors := corsMiddleware(corsOrigins)
