@@ -84,7 +84,7 @@ var templates = []template{
 	{
 		regexp.MustCompile(`(?i)(mewstream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|` +
 			`flarestorm|zaptrix|lookaround|renvix|gleamwave|zapora|glimmeron|lostproject)\.` +
-			`(click|buzz|live|club|io)$`),
+			`(click|buzz|live|club)$`),
 		"https://megaplay.buzz", "https://megaplay.buzz/", "", nil,
 	},
 
