@@ -84,8 +84,16 @@ var templates = []template{
 	{
 		regexp.MustCompile(`(?i)(mewstream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|` +
 			`flarestorm|zaptrix|lookaround|renvix|gleamwave|zapora|glimmeron|lostproject)\.` +
-			`(click|buzz|live|club)$`),
+			`(click|buzz|live|club|io)$`),
 		"https://megaplay.buzz", "https://megaplay.buzz/", "", nil,
+	},
+
+	// vidwish related
+	{
+		regexp.MustCompile(`(?i)(sugevideo|watching|cloudbuzz|anivideo|` +
+			`livedns|cloudvideo|trycloud)\.` +
+			`(xyz|onl|lol|sbs|my|pro|lat)$`),
+		"https://vidwish.live", "https://vidwish.live/", "", nil,
 	},
 
 	// Clear sky drift
