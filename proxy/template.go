@@ -80,6 +80,13 @@ var templates = []template{
 		"https://megacloud.club", "https://megacloud.club/", "", nil,
 	},
 
+	// megaplay related
+	{
+		regexp.MustCompile(`(?i)(mewstream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|flarestorm|zaptrix|lookaround|renvix|gleamwave|zapora|glimmeron)\.` +
+			`(click|buzz|live|club)$`),
+		"https://megaplay.buzz", "https://megaplay.buzz/", "", nil,
+	},
+
 	// Clear sky drift
 	{regexp.MustCompile(`(?i)clearskydrift45\.site$`), "https://kerolaunochan.online", "https://kerolaunochan.online/", "", nil},
 
