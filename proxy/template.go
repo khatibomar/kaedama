@@ -88,6 +88,14 @@ var templates = []template{
 		"https://megaplay.buzz", "https://megaplay.buzz/", "", nil,
 	},
 
+	// vidwish related
+	{
+		regexp.MustCompile(`(?i)(sugevideo|watching|cloudbuzz|anivideo|` +
+			`livedns|cloudvideo|trycloud)\.` +
+			`(xyz|onl|lol|sbs|my|pro|lat)$`),
+		"https://vidwish.live", "https://vidwish.live/", "", nil,
+	},
+
 	// Clear sky drift
 	{regexp.MustCompile(`(?i)clearskydrift45\.site$`), "https://kerolaunochan.online", "https://kerolaunochan.online/", "", nil},
 
