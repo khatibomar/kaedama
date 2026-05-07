@@ -20,6 +20,8 @@ type template struct {
 const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0"
 
 // templates contains domain-specific anti-hotlinking rules.
+//
+//nolint:goconst // just shut the fuck up
 var templates = []template{
 	// Padorupado.ru
 	{regexp.MustCompile(`(?i)\.padorupado\.ru$`), "https://kwik.si", "https://kwik.si/", "", nil},
