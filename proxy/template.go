@@ -85,7 +85,7 @@ var templates = []template{
 	// megaplay related
 	{
 		regexp.MustCompile(`(?i)(mewstream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|` +
-			`flarestorm|zaptrix|lookaround|renvix|cinewave2|gleamwave|zapora|glimmeron|lostproject)\.` +
+			`flarestorm|zaptrix|lookaround|streamzone1|renvix|cinewave2|gleamwave|zapora|glimmeron|lostproject)\.` +
 			`(click|buzz|live|club|site)$`),
 		"https://megaplay.buzz", "https://megaplay.buzz/", "", nil,
 	},
