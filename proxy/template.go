@@ -28,15 +28,10 @@ var templates = []template{
 
 	// Krussdomi.com related
 	{
-		regexp.MustCompile(`(?i)(krussdomi|habibikun)\.` +
-			`(com|xyz)$`),
+		regexp.MustCompile(`(?i)(krussdomi|habibikunnarutokun|babybayw|advancedairesearchlab|akamaized)\.` +
+			`(com|xyz|net)$`),
 		"https://krussdomi.com", "https://hls.krussdomi.com/", "", nil,
 	},
-
-	{regexp.MustCompile(`(?i)\.narutokun\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
-	{regexp.MustCompile(`(?i)\.babybayw\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
-	{regexp.MustCompile(`(?i)\.advancedairesearchlab\.xyz$`), "https://krussdomi.com", "https://krussdomi.com/", "", nil},
-	{regexp.MustCompile(`(?i)\.akamaized\.net$`), "https://bl.krussdomi.com", "https://bl.krussdomi.com/", "", nil},
 
 	// Anih1 related
 	{regexp.MustCompile(`(?i)\.anih1\.top$`), "https://ee.anih1.top", "https://ee.anih1.top/", "", nil},
