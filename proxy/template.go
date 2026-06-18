@@ -28,11 +28,10 @@ var templates = []template{
 
 	// Krussdomi.com related
 	{
-		regexp.MustCompile(`(?i)(krussdomi|habibikunnarutokun|babybayw|advancedairesearchlab|akamaized)\.` +
+		regexp.MustCompile(`(?i)(krussdomi|habibikun|narutokun|babybayw|advancedairesearchlab|akamaized)\.` +
 			`(com|xyz|net)$`),
 		"https://krussdomi.com", "https://hls.krussdomi.com/", "", nil,
 	},
-
 	// Anih1 related
 	{regexp.MustCompile(`(?i)\.anih1\.top$`), "https://ee.anih1.top", "https://ee.anih1.top/", "", nil},
 	{regexp.MustCompile(`(?i)\.xyk3\.top$`), "https://ee.anih1.top", "https://ee.anih1.top/", "", nil},
