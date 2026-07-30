@@ -19,10 +19,11 @@ func New(
 	proxyService *proxy.Service,
 	corsOrigins string,
 	cacheTTL time.Duration,
+	maxCacheSize int64,
 ) http.Handler {
 	api := &api{
 		proxyService: proxyService,
-		cache:        cache.New(cacheTTL),
+		cache:        cache.New(cacheTTL, maxCacheSize),
 	}
 
 	mux := http.NewServeMux()

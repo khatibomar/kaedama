@@ -23,6 +23,7 @@ type Config struct {
 	Env            string `default:"development" envconfig:"ENV"`
 	LogLevel       string `default:"debug"       envconfig:"LOG_LEVEL"`
 	CacheTTL       int    `default:"300"         envconfig:"CACHE_TTL"`
+	MaxCacheSize   int64  `default:"104857600"   envconfig:"MAX_CACHE_SIZE"`
 	RequestTimeout int    `default:"30000"       envconfig:"REQUEST_TIMEOUT"`
 	CORSOrigins    string `default:"*"           envconfig:"CORS_ORIGINS"`
 }
@@ -57,7 +58,7 @@ func realMain(log *slog.Logger, cfg Config) error {
 
 	cacheTTL := time.Duration(cfg.CacheTTL) * time.Second
 	proxyService := proxy.New()
-	handler := api.New(log, proxyService, cfg.CORSOrigins, cacheTTL)
+	handler := api.New(log, proxyService, cfg.CORSOrigins, cacheTTL, cfg.MaxCacheSize)
 
 	address := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	server := &http.Server{

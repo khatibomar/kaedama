@@ -1,8 +1,10 @@
 package api
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -29,7 +31,6 @@ var remoteHeaderDenylist = map[string]struct{}{
 	"Access-Control-Expose-Headers":    {},
 	"Content-Type":                     {},
 	"Content-Length":                   {},
-	"Content-Encoding":                 {},
 }
 
 // stripRemoteHeaders copies headers from a remote response map into w,
@@ -87,32 +88,59 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", resp.ContentType)
 	stripRemoteHeaders(w, resp.Headers)
 	w.Header().Set("X-Cache", "MISS")
-	w.WriteHeader(resp.Status)
+
+	if resp.Body != nil {
+		defer resp.Body.Close()
+	}
 
 	var responseBody []byte
 
-	// Process M3U8 content if needed
-	if (proxy.IsM3U8ContentType(resp.ContentType) || proxy.IsM3U8URL(targetURL)) && proxy.IsActualM3U8Content(resp.Content) {
-		proxyURI := "/proxy"
-		processedContent := api.proxyService.ProcessM3U8(resp.Content, parsedOriginalURL, proxyURI)
-		responseBody = []byte(processedContent)
-	} else {
-		// Use raw content for non-M3U8 responses
-		responseBody = resp.Content
-	}
-
-	// Cache successful responses (2xx status codes)
-	if resp.Status >= 200 && resp.Status < 300 {
-		cachedResp := &CachedResponse{
-			ContentType: resp.ContentType,
-			Headers:     resp.Headers,
-			Status:      resp.Status,
-			Body:        responseBody,
+	if resp.Content != nil {
+		if (proxy.IsM3U8ContentType(resp.ContentType) || proxy.IsM3U8URL(targetURL)) && proxy.IsActualM3U8Content(resp.Content) {
+			proxyURI := "/proxy"
+			processedContent := api.proxyService.ProcessM3U8(resp.Content, parsedOriginalURL, proxyURI)
+			responseBody = []byte(processedContent)
+		} else {
+			responseBody = resp.Content
 		}
-		api.cache.Set(targetURL, cachedResp)
+
+		w.WriteHeader(resp.Status)
+
+		if resp.Status >= 200 && resp.Status < 300 {
+			cachedResp := &CachedResponse{
+				ContentType: resp.ContentType,
+				Headers:     resp.Headers,
+				Status:      resp.Status,
+				Body:        responseBody,
+			}
+			api.cache.Set(targetURL, cachedResp, int64(len(responseBody)))
+		}
+
+		_, _ = w.Write(responseBody) //nolint:gosec // proxy passthrough by design
+		return
 	}
 
-	_, _ = w.Write(responseBody) //nolint:gosec // G705: proxy passthrough by design
+	const maxCacheItemSize = 2 * 1024 * 1024
+	w.WriteHeader(resp.Status)
+
+	var buf bytes.Buffer
+	lr := io.LimitReader(resp.Body, maxCacheItemSize+1)
+	tr := io.TeeReader(lr, &buf)
+
+	_, err = io.Copy(w, tr)
+	if err == nil && buf.Len() <= maxCacheItemSize {
+		if resp.Status >= 200 && resp.Status < 300 {
+			cachedResp := &CachedResponse{
+				ContentType: resp.ContentType,
+				Headers:     resp.Headers,
+				Status:      resp.Status,
+				Body:        buf.Bytes(),
+			}
+			api.cache.Set(targetURL, cachedResp, int64(buf.Len()))
+		}
+	}
+
+	_, _ = io.Copy(w, resp.Body)
 }
 
 func (api *api) handleHealth(w http.ResponseWriter, r *http.Request) {
