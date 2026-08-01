@@ -1,4 +1,4 @@
-FROM golang:1.26 AS build
+FROM golang:1.26.5 AS build
 WORKDIR /build/src
 
 COPY go.mod go.sum .
@@ -8,8 +8,8 @@ COPY . .
 
 RUN CGO_ENABLED=0 go build -trimpath -ldflags=-s -o kaedama .
 
-FROM alpine:latest
-RUN apk add --no-cache ca-certificates wget
+FROM scratch
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /build/src/kaedama /usr/bin/kaedama
 
 ENTRYPOINT ["/usr/bin/kaedama"]

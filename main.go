@@ -27,7 +27,7 @@ var memorySizeRegex = regexp.MustCompile(`^([+-]?[0-9.]+([eE][+-]?[0-9]+)?)([A-Z
 func (m *MemorySize) UnmarshalText(text []byte) error {
 	s := strings.TrimSpace(string(text))
 	if s == "" {
-		return fmt.Errorf("empty memory size")
+		return errors.New("empty memory size")
 	}
 
 	matches := memorySizeRegex.FindStringSubmatch(s)
@@ -43,7 +43,7 @@ func (m *MemorySize) UnmarshalText(text []byte) error {
 		return fmt.Errorf("invalid memory size value: %s", numStr)
 	}
 
-	var multiplier float64 = 1
+	var multiplier float64
 	switch suffix {
 	case "", "B", "b":
 		multiplier = 1
@@ -80,14 +80,14 @@ func (m *MemorySize) UnmarshalText(text []byte) error {
 }
 
 type Config struct {
-	Port           int    `default:"4140"        envconfig:"PORT"`
-	Host           string `default:"0.0.0.0"     envconfig:"HOST"`
-	Env            string `default:"development" envconfig:"ENV"`
-	LogLevel       string `default:"debug"       envconfig:"LOG_LEVEL"`
-	CacheTTL       int    `default:"300"         envconfig:"CACHE_TTL"`
+	Port           int        `default:"4140"        envconfig:"PORT"`
+	Host           string     `default:"0.0.0.0"     envconfig:"HOST"`
+	Env            string     `default:"development" envconfig:"ENV"`
+	LogLevel       string     `default:"debug"       envconfig:"LOG_LEVEL"`
+	CacheTTL       int        `default:"300"         envconfig:"CACHE_TTL"`
 	MaxCacheSize   MemorySize `default:"104857600"   envconfig:"MAX_CACHE_SIZE"`
-	RequestTimeout int    `default:"30000"       envconfig:"REQUEST_TIMEOUT"`
-	CORSOrigins    string `default:"*"           envconfig:"CORS_ORIGINS"`
+	RequestTimeout int        `default:"30000"       envconfig:"REQUEST_TIMEOUT"`
+	CORSOrigins    string     `default:"*"           envconfig:"CORS_ORIGINS"`
 }
 
 func main() {
