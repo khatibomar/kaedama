@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"regexp"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,13 +20,72 @@ import (
 	"github.com/khatibomar/kaedama/proxy"
 )
 
+type MemorySize int64
+
+var memorySizeRegex = regexp.MustCompile(`^([+-]?[0-9.]+([eE][+-]?[0-9]+)?)([A-Za-z]*)$`)
+
+func (m *MemorySize) UnmarshalText(text []byte) error {
+	s := strings.TrimSpace(string(text))
+	if s == "" {
+		return fmt.Errorf("empty memory size")
+	}
+
+	matches := memorySizeRegex.FindStringSubmatch(s)
+	if matches == nil {
+		return fmt.Errorf("invalid memory size format: %s", s)
+	}
+
+	numStr := matches[1]
+	suffix := matches[3]
+
+	val, err := strconv.ParseFloat(numStr, 64)
+	if err != nil {
+		return fmt.Errorf("invalid memory size value: %s", numStr)
+	}
+
+	var multiplier float64 = 1
+	switch suffix {
+	case "", "B", "b":
+		multiplier = 1
+	case "K", "k":
+		multiplier = 1e3
+	case "M", "m":
+		multiplier = 1e6
+	case "G", "g":
+		multiplier = 1e9
+	case "T", "t":
+		multiplier = 1e12
+	case "P", "p":
+		multiplier = 1e15
+	case "E", "e":
+		multiplier = 1e18
+	case "Ki", "ki":
+		multiplier = 1024
+	case "Mi", "mi":
+		multiplier = 1024 * 1024
+	case "Gi", "gi":
+		multiplier = 1024 * 1024 * 1024
+	case "Ti", "ti":
+		multiplier = 1024 * 1024 * 1024 * 1024
+	case "Pi", "pi":
+		multiplier = 1024 * 1024 * 1024 * 1024 * 1024
+	case "Ei", "ei":
+		multiplier = 1024 * 1024 * 1024 * 1024 * 1024 * 1024
+	default:
+		return fmt.Errorf("unrecognized memory suffix: %s", suffix)
+	}
+
+	*m = MemorySize(val * multiplier)
+	return nil
+}
+
 type Config struct {
 	Port           int    `default:"4140"        envconfig:"PORT"`
 	Host           string `default:"0.0.0.0"     envconfig:"HOST"`
 	Env            string `default:"development" envconfig:"ENV"`
 	LogLevel       string `default:"debug"       envconfig:"LOG_LEVEL"`
 	CacheTTL       int    `default:"300"         envconfig:"CACHE_TTL"`
-	MaxCacheSize   int64  `default:"104857600"   envconfig:"MAX_CACHE_SIZE"`
+	MaxCacheSize   MemorySize `default:"104857600"   envconfig:"MAX_CACHE_SIZE"`
 	RequestTimeout int    `default:"30000"       envconfig:"REQUEST_TIMEOUT"`
 	CORSOrigins    string `default:"*"           envconfig:"CORS_ORIGINS"`
 }
@@ -58,7 +120,7 @@ func realMain(log *slog.Logger, cfg Config) error {
 
 	cacheTTL := time.Duration(cfg.CacheTTL) * time.Second
 	proxyService := proxy.New()
-	handler := api.New(log, proxyService, cfg.CORSOrigins, cacheTTL, cfg.MaxCacheSize)
+	handler := api.New(log, proxyService, cfg.CORSOrigins, cacheTTL, int64(cfg.MaxCacheSize))
 
 	address := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	server := &http.Server{
