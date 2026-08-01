@@ -54,6 +54,7 @@ Configure the application using environment variables:
 - `ENV`: Environment (default: development)
 - `LOG_LEVEL`: Log level (default: debug)
 - `CACHE_TTL`: Cache TTL in seconds (default: 300)
+- `MAX_CACHE_SIZE`: Max cache size in bytes (default: 104857600)
 - `REQUEST_TIMEOUT`: Request timeout in milliseconds (default: 30000)
 - `CORS_ORIGINS`: Allowed CORS origins (default: *)
 

@@ -64,6 +64,7 @@ type Result struct {
 	Headers     map[string]string
 	Status      int
 	Content     []byte
+	Body        io.ReadCloser
 }
 
 var privateIPRanges = buildPrivateIPRanges()
@@ -143,21 +144,9 @@ func (s *Service) URL(ctx context.Context, requestURL *url.URL) (*Result, error)
 		req.Header.Set(key, value)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
 	resp, err := s.client.Do(req)
 	if err != nil {
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			return nil, errors.New("request timed out after 30s")
-		}
 		return nil, fmt.Errorf("proxy request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	content, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	contentType := resp.Header.Get("Content-Type")
@@ -165,18 +154,36 @@ func (s *Service) URL(ctx context.Context, requestURL *url.URL) (*Result, error)
 		contentType = "application/octet-stream"
 	}
 
+	headers = make(map[string]string)
+	for key, values := range resp.Header {
+		if len(values) > 0 {
+			headers[key] = values[0]
+		}
+	}
+
+	isM3U8 := IsM3U8ContentType(contentType) || IsM3U8URL(targetURL)
+	if !isM3U8 {
+		return &Result{
+			ContentType: contentType,
+			Headers:     headers,
+			Status:      resp.StatusCode,
+			Body:        resp.Body,
+		}, nil
+	}
+
+	defer resp.Body.Close()
+
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
 	encoding := resp.Header.Get("Content-Encoding")
 	if encoding != "" {
 		decompressed, err := s.DecompressContent(content, encoding)
 		if err == nil {
 			content = decompressed
-		}
-	}
-
-	headers = make(map[string]string)
-	for key, values := range resp.Header {
-		if len(values) > 0 {
-			headers[key] = values[0]
+			delete(headers, "Content-Encoding")
 		}
 	}
 

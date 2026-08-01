@@ -8,7 +8,7 @@ import (
 
 func TestNew(t *testing.T) {
 	ttl := 5 * time.Second
-	c := New(ttl)
+	c := New(ttl, 1024)
 
 	if c == nil {
 		t.Fatal("expected cache to be created, got nil")
@@ -28,13 +28,13 @@ func TestNew(t *testing.T) {
 }
 
 func TestSetAndGet(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 
 	// Test setting and getting a value
 	key := "test-key"
 	value := "test-value"
 
-	c.Set(key, value)
+	c.Set(key, value, 1)
 
 	retrieved, exists := c.Get(key)
 	if !exists {
@@ -47,7 +47,7 @@ func TestSetAndGet(t *testing.T) {
 }
 
 func TestGetNonExistentKey(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 
 	value, exists := c.Get("non-existent-key")
 	if exists {
@@ -60,7 +60,7 @@ func TestGetNonExistentKey(t *testing.T) {
 }
 
 func TestSetMultipleValues(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 
 	testData := map[string]any{
 		"string": "test-string",
@@ -71,7 +71,7 @@ func TestSetMultipleValues(t *testing.T) {
 
 	// Set all values
 	for key, value := range testData {
-		c.Set(key, value)
+		c.Set(key, value, 1)
 	}
 
 	// Verify all values
@@ -90,7 +90,7 @@ func TestSetMultipleValues(t *testing.T) {
 	// Test slice separately (can't use == comparison)
 	sliceKey := "slice"
 	sliceValue := []int{1, 2, 3}
-	c.Set(sliceKey, sliceValue)
+	c.Set(sliceKey, sliceValue, 1)
 
 	retrieved, exists := c.Get(sliceKey)
 	if !exists {
@@ -118,12 +118,12 @@ func TestSetMultipleValues(t *testing.T) {
 
 func TestTTLExpiration(t *testing.T) {
 	ttl := 100 * time.Millisecond
-	c := New(ttl)
+	c := New(ttl, 1024)
 
 	key := "expiring-key"
 	value := "expiring-value"
 
-	c.Set(key, value)
+	c.Set(key, value, 1)
 
 	// Value should exist immediately
 	retrieved, exists := c.Get(key)
@@ -172,12 +172,12 @@ func TestIsExpired(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 
 	key := "delete-key"
 	value := "delete-value"
 
-	c.Set(key, value)
+	c.Set(key, value, 1)
 
 	// Verify key exists
 	_, exists := c.Get(key)
@@ -196,11 +196,11 @@ func TestDelete(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 
 	// Add multiple items
 	for i := range 5 {
-		c.Set(string(rune('a'+i)), i)
+		c.Set(string(rune('a'+i)), i, 1)
 	}
 
 	if c.Size() != 5 {
@@ -224,7 +224,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestSize(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 
 	// Initially empty
 	if c.Size() != 0 {
@@ -233,7 +233,7 @@ func TestSize(t *testing.T) {
 
 	// Add items and check size
 	for i := 1; i <= 10; i++ {
-		c.Set(string(rune('a'+i-1)), i)
+		c.Set(string(rune('a'+i-1)), i, 1)
 		if c.Size() != i {
 			t.Errorf("expected size %d, got %d", i, c.Size())
 		}
@@ -249,12 +249,12 @@ func TestSize(t *testing.T) {
 }
 
 func TestKeys(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 
 	expectedKeys := []string{"key1", "key2", "key3"}
 
 	for _, key := range expectedKeys {
-		c.Set(key, "value")
+		c.Set(key, "value", 1)
 	}
 
 	keys := c.Keys()
@@ -277,7 +277,7 @@ func TestKeys(t *testing.T) {
 }
 
 func TestConcurrentAccess(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 	numGoroutines := 100
 	numOperations := 10
 
@@ -293,7 +293,7 @@ func TestConcurrentAccess(t *testing.T) {
 				value := fmt.Sprintf("value-%d-%d", id, j)
 
 				// Set value
-				c.Set(key, value)
+				c.Set(key, value, 1)
 
 				// Get value
 				retrieved, exists := c.Get(key)
@@ -317,11 +317,11 @@ func TestConcurrentAccess(t *testing.T) {
 
 func TestCleanupGoroutine(t *testing.T) {
 	ttl := 200 * time.Millisecond
-	c := New(ttl)
+	c := New(ttl, 1024)
 
 	// Add items that will expire
 	for i := range 5 {
-		c.Set(fmt.Sprintf("cleanup-key-%d", i), fmt.Sprintf("cleanup-value-%d", i))
+		c.Set(fmt.Sprintf("cleanup-key-%d", i), fmt.Sprintf("cleanup-value-%d", i), 1)
 	}
 
 	if c.Size() != 5 {
@@ -347,20 +347,20 @@ func TestCleanupGoroutine(t *testing.T) {
 }
 
 func TestOverwriteExistingKey(t *testing.T) {
-	c := New(time.Minute)
+	c := New(time.Minute, 1024)
 
 	key := "overwrite-key"
 	value1 := "original-value"
 	value2 := "new-value"
 
-	c.Set(key, value1)
+	c.Set(key, value1, 1)
 	retrieved, exists := c.Get(key)
 	if !exists || retrieved != value1 {
 		t.Fatalf("expected original value %v, got %v", value1, retrieved)
 	}
 
 	// Overwrite with new value
-	c.Set(key, value2)
+	c.Set(key, value2, 1)
 	retrieved, exists = c.Get(key)
 	if !exists || retrieved != value2 {
 		t.Errorf("expected new value %v, got %v", value2, retrieved)
@@ -372,23 +372,51 @@ func TestOverwriteExistingKey(t *testing.T) {
 	}
 }
 
+func TestLRUEviction(t *testing.T) {
+	c := New(time.Minute, 10) // max size 10
+
+	// Add 3 items of size 4 (total 12 > 10). The first one should be evicted.
+	c.Set("k1", "v1", 4)
+	c.Set("k2", "v2", 4)
+	c.Set("k3", "v3", 4)
+
+	if c.Size() != 2 {
+		t.Errorf("expected size 2, got %d", c.Size())
+	}
+
+	_, exists := c.Get("k1")
+	if exists {
+		t.Error("expected k1 to be evicted")
+	}
+
+	_, exists = c.Get("k2")
+	if !exists {
+		t.Error("expected k2 to exist")
+	}
+
+	_, exists = c.Get("k3")
+	if !exists {
+		t.Error("expected k3 to exist")
+	}
+}
+
 // Benchmark tests
 func BenchmarkCacheSet(b *testing.B) {
-	c := New(time.Minute)
+	c := New(time.Minute, 10000000)
 
 	for i := 0; b.Loop(); i++ {
 		key := fmt.Sprintf("bench-key-%d", i)
-		c.Set(key, "bench-value")
+		c.Set(key, "bench-value", 1)
 	}
 }
 
 func BenchmarkCacheGet(b *testing.B) {
-	c := New(time.Minute)
+	c := New(time.Minute, 10000000)
 
 	// Pre-populate cache
 	for i := range 1000 {
 		key := fmt.Sprintf("bench-key-%d", i)
-		c.Set(key, "bench-value")
+		c.Set(key, "bench-value", 1)
 	}
 
 	for i := 0; b.Loop(); i++ {
@@ -398,24 +426,24 @@ func BenchmarkCacheGet(b *testing.B) {
 }
 
 func BenchmarkCacheSetGet(b *testing.B) {
-	c := New(time.Minute)
+	c := New(time.Minute, 10000000)
 
 	for i := 0; b.Loop(); i++ {
 		key := fmt.Sprintf("bench-key-%d", i)
-		c.Set(key, "bench-value")
+		c.Set(key, "bench-value", 1)
 		c.Get(key)
 	}
 }
 
 func BenchmarkCacheConcurrent(b *testing.B) {
-	c := New(time.Minute)
+	c := New(time.Minute, 10000000)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		i := 0
 		for pb.Next() {
 			key := fmt.Sprintf("concurrent-key-%d", i)
-			c.Set(key, "concurrent-value")
+			c.Set(key, "concurrent-value", 1)
 			c.Get(key)
 			i++
 		}
