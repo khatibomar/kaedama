@@ -123,9 +123,13 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(resp.Status)
 
 	var buf bytes.Buffer
-	mw := io.MultiWriter(w, &buf)
+	lw := &limitedWriter{
+		w:       w,
+		buf:     &buf,
+		maxSize: api.maxCacheSize,
+	}
 
-	if _, err := io.Copy(mw, resp.Body); err != nil {
+	if _, err := io.Copy(lw, resp.Body); err != nil {
 		return
 	}
 
@@ -133,14 +137,15 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cachedResp := &CachedResponse{
-		ContentType: resp.ContentType,
-		Headers:     resp.Headers,
-		Status:      resp.Status,
-		Body:        buf.Bytes(),
+	if !lw.dropped {
+		cachedResp := &CachedResponse{
+			ContentType: resp.ContentType,
+			Headers:     resp.Headers,
+			Status:      resp.Status,
+			Body:        buf.Bytes(),
+		}
+		api.cache.Set(targetURL, cachedResp, int64(buf.Len()))
 	}
-
-	api.cache.Set(targetURL, cachedResp, int64(buf.Len()))
 }
 
 func (api *api) handleHealth(w http.ResponseWriter, r *http.Request) {
@@ -159,4 +164,27 @@ func (api *api) handleCacheClear(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	response := `{"status":"ok","message":"cache cleared"}`
 	_, _ = w.Write([]byte(response))
+}
+
+type limitedWriter struct {
+	w       io.Writer
+	buf     *bytes.Buffer
+	maxSize int64
+	dropped bool
+}
+
+func (lw *limitedWriter) Write(p []byte) (n int, err error) {
+	n, err = lw.w.Write(p)
+	if err != nil {
+		return n, err
+	}
+	if !lw.dropped {
+		if lw.maxSize > 0 && int64(lw.buf.Len()+n) > lw.maxSize {
+			lw.dropped = true
+			lw.buf.Reset()
+		} else {
+			lw.buf.Write(p[:n])
+		}
+	}
+	return n, nil
 }

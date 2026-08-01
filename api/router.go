@@ -12,6 +12,7 @@ import (
 type api struct {
 	proxyService *proxy.Service
 	cache        *cache.Cache
+	maxCacheSize int64
 }
 
 func New(
@@ -24,6 +25,7 @@ func New(
 	api := &api{
 		proxyService: proxyService,
 		cache:        cache.New(cacheTTL, maxCacheSize),
+		maxCacheSize: maxCacheSize,
 	}
 
 	mux := http.NewServeMux()

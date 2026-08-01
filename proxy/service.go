@@ -207,6 +207,8 @@ func normalizeURL(rawURL string) string {
 	return rawURL
 }
 
+var uriRegex = regexp.MustCompile(`URI="([^"]+)"`)
+
 func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string) string {
 	basePath := baseURL.String()
 
@@ -216,19 +218,35 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 		basePath += "/"
 	}
 
-	lines := strings.Split(string(content), "\n")
-	processedLines := make([]string, 0, len(lines))
+	var buf strings.Builder
+	buf.Grow(len(content) + len(content)/2)
 
-	for _, line := range lines {
+	strContent := string(content)
+
+	first := true
+	for len(strContent) > 0 {
+		var line string
+		idx := strings.IndexByte(strContent, '\n')
+		if idx >= 0 {
+			line = strContent[:idx]
+			strContent = strContent[idx+1:]
+		} else {
+			line = strContent
+			strContent = ""
+		}
+
+		if !first {
+			buf.WriteByte('\n')
+		}
+		first = false
+
 		trimmedLine := strings.TrimSpace(line)
 
 		if strings.HasPrefix(trimmedLine, "#") {
-			re := regexp.MustCompile(`URI="([^"]+)"`)
-			matches := re.FindAllStringSubmatch(line, -1)
+			matches := uriRegex.FindAllStringSubmatch(line, -1)
 
 			if len(matches) == 0 {
-				// Comment line with no URI tag — preserve as-is
-				processedLines = append(processedLines, line)
+				buf.WriteString(line)
 				continue
 			}
 
@@ -255,7 +273,7 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 					fmt.Sprintf(`URI="%s"`, proxiedURL),
 				)
 			}
-			processedLines = append(processedLines, line)
+			buf.WriteString(line)
 			continue
 		}
 
@@ -263,7 +281,7 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 			trimmedLine = normalizeURL(trimmedLine)
 
 			if strings.HasPrefix(trimmedLine, proxyURL) {
-				processedLines = append(processedLines, line)
+				buf.WriteString(line)
 				continue
 			}
 
@@ -277,15 +295,14 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 			}
 
 			proxiedURL := fmt.Sprintf("%s?url=%s", proxyURL, url.QueryEscape(absoluteURL))
-			processedLines = append(processedLines, proxiedURL)
+			buf.WriteString(proxiedURL)
 			continue
 		}
 
-		// Empty line — preserve it
-		processedLines = append(processedLines, line)
+		buf.WriteString(line)
 	}
 
-	result := strings.Join(processedLines, "\n")
+	result := buf.String()
 
 	if unescaped, err := url.QueryUnescape(result); err == nil {
 		return unescaped
