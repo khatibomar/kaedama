@@ -120,15 +120,11 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const maxCacheItemSize = 2 * 1024 * 1024
 	w.WriteHeader(resp.Status)
 
 	var buf bytes.Buffer
-	lr := io.LimitReader(resp.Body, maxCacheItemSize+1)
-	tr := io.TeeReader(lr, &buf)
-
-	_, err = io.Copy(w, tr)
-	if err == nil && buf.Len() <= maxCacheItemSize {
+	_, err = io.Copy(w, &buf)
+	if err == nil {
 		if resp.Status >= 200 && resp.Status < 300 {
 			cachedResp := &CachedResponse{
 				ContentType: resp.ContentType,
