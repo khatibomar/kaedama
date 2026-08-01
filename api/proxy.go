@@ -123,20 +123,24 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(resp.Status)
 
 	var buf bytes.Buffer
-	_, err = io.Copy(w, &buf)
-	if err == nil {
-		if resp.Status >= 200 && resp.Status < 300 {
-			cachedResp := &CachedResponse{
-				ContentType: resp.ContentType,
-				Headers:     resp.Headers,
-				Status:      resp.Status,
-				Body:        buf.Bytes(),
-			}
-			api.cache.Set(targetURL, cachedResp, int64(buf.Len()))
-		}
+	mw := io.MultiWriter(w, &buf)
+
+	if _, err := io.Copy(mw, resp.Body); err != nil {
+		return
 	}
 
-	_, _ = io.Copy(w, resp.Body)
+	if resp.Status < 200 || resp.Status >= 300 {
+		return
+	}
+
+	cachedResp := &CachedResponse{
+		ContentType: resp.ContentType,
+		Headers:     resp.Headers,
+		Status:      resp.Status,
+		Body:        buf.Bytes(),
+	}
+
+	api.cache.Set(targetURL, cachedResp, int64(buf.Len()))
 }
 
 func (api *api) handleHealth(w http.ResponseWriter, r *http.Request) {
