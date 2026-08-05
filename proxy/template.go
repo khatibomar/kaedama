@@ -83,16 +83,16 @@ var templates = []template{
 	// megaplay related
 	{
 		regexp.MustCompile(`(?i)(mewstream|nekostream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|` +
-			`akirax|mikora|norami|shiora|kotocdn` +
+			`akirax|mikora|norami|shiora|kotocdn|livedns|sugevideo|` +
 			`flarestorm|zaptrix|lookaround|orbitra|streamzone1|sparkora|renvix|cinewave2|gleamwave|zapora|glimmeron|lostproject)\.` +
-			`(click|buzz|live|club|site|top)$`),
+			`(click|buzz|live|club|site|top|my|xyz)$`),
 		"https://megaplay.buzz", "https://megaplay.buzz/", "", nil,
 	},
 
 	// vidwish related
 	{
-		regexp.MustCompile(`(?i)(sugevideo|watching|cloudbuzz|anivideo|` +
-			`livedns|cloudvideo|trycloud)\.` +
+		regexp.MustCompile(`(?i)(watching|cloudbuzz|anivideo|` +
+			`cloudvideo|trycloud)\.` +
 			`(xyz|onl|lol|sbs|my|pro|lat)$`),
 		"https://vidwish.live", "https://vidwish.live/", "", nil,
 	},
