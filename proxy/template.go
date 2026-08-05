@@ -83,19 +83,20 @@ var templates = []template{
 	// megaplay related
 	{
 		regexp.MustCompile(`(?i)(mewstream|nekostream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|` +
-			`akirax|mikora|norami|shiora|kotocdn|livedns|sugevideo|` +
+			`akirax|mikora|norami|shiora|kotocdn|` +
+			`livedns|sugevideo|watching|cloudbuzz|anivideo|cloudvideo|trycloud|` +
 			`flarestorm|zaptrix|lookaround|orbitra|streamzone1|sparkora|renvix|cinewave2|gleamwave|zapora|glimmeron|lostproject)\.` +
-			`(click|buzz|live|club|site|top|my|xyz)$`),
+			`(click|buzz|live|club|site|top|my|xyz|onl|lol|sbs|pro|lat)$`),
 		"https://megaplay.buzz", "https://megaplay.buzz/", "", nil,
 	},
 
 	// vidwish related
-	{
-		regexp.MustCompile(`(?i)(watching|cloudbuzz|anivideo|` +
-			`cloudvideo|trycloud)\.` +
-			`(xyz|onl|lol|sbs|my|pro|lat)$`),
-		"https://vidwish.live", "https://vidwish.live/", "", nil,
-	},
+	// {
+	// 	regexp.MustCompile(`(?i)(cloudbuzz|anivideo|` +
+	// 		`cloudvideo|trycloud)\.` +
+	// 		`(xyz|onl|lol|sbs|my|pro|lat)$`),
+	// 	"https://vidwish.live", "https://vidwish.live/", "", nil,
+	// },
 
 	// Clear sky drift
 	{regexp.MustCompile(`(?i)clearskydrift45\.site$`), "https://kerolaunochan.online", "https://kerolaunochan.online/", "", nil},
