@@ -303,11 +303,6 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 	}
 
 	result := buf.String()
-
-	if unescaped, err := url.QueryUnescape(result); err == nil {
-		return unescaped
-	}
-
 	return result
 }
 
