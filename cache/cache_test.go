@@ -7,6 +7,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	ttl := 5 * time.Second
 	c := New(ttl, 1024)
 
@@ -28,6 +29,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestSetAndGet(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 
 	// Test setting and getting a value
@@ -47,6 +49,7 @@ func TestSetAndGet(t *testing.T) {
 }
 
 func TestGetNonExistentKey(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 
 	value, exists := c.Get("non-existent-key")
@@ -60,6 +63,7 @@ func TestGetNonExistentKey(t *testing.T) {
 }
 
 func TestSetMultipleValues(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 
 	testData := map[string]any{
@@ -117,6 +121,7 @@ func TestSetMultipleValues(t *testing.T) {
 }
 
 func TestTTLExpiration(t *testing.T) {
+	t.Parallel()
 	ttl := 100 * time.Millisecond
 	c := New(ttl, 1024)
 
@@ -148,6 +153,7 @@ func TestTTLExpiration(t *testing.T) {
 }
 
 func TestIsExpired(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 
 	// Test non-expired item
@@ -172,6 +178,7 @@ func TestIsExpired(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 
 	key := "delete-key"
@@ -196,6 +203,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 
 	// Add multiple items
@@ -224,6 +232,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestSize(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 
 	// Initially empty
@@ -249,6 +258,7 @@ func TestSize(t *testing.T) {
 }
 
 func TestKeys(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 
 	expectedKeys := []string{"key1", "key2", "key3"}
@@ -277,6 +287,7 @@ func TestKeys(t *testing.T) {
 }
 
 func TestConcurrentAccess(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 	numGoroutines := 100
 	numOperations := 10
@@ -316,6 +327,7 @@ func TestConcurrentAccess(t *testing.T) {
 }
 
 func TestCleanupGoroutine(t *testing.T) {
+	t.Parallel()
 	ttl := 200 * time.Millisecond
 	c := New(ttl, 1024)
 
@@ -347,6 +359,7 @@ func TestCleanupGoroutine(t *testing.T) {
 }
 
 func TestOverwriteExistingKey(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 1024)
 
 	key := "overwrite-key"
@@ -373,6 +386,7 @@ func TestOverwriteExistingKey(t *testing.T) {
 }
 
 func TestLRUEviction(t *testing.T) {
+	t.Parallel()
 	c := New(time.Minute, 10) // max size 10
 
 	// Add 3 items of size 4 (total 12 > 10). The first one should be evicted.
