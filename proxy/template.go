@@ -184,6 +184,12 @@ var templates = []template{
 
 	// Twitch CDN
 	{regexp.MustCompile(`(?i)\.ttvnw\.net$`), "https://www.twitch.tv", "https://www.twitch.tv/", "", nil},
+
+	// TikTok CDN
+	{
+		regexp.MustCompile(`(?i)\.(tiktokcdn|tiktokcdn-us|tiktokv)\.com$`),
+		"https://www.tiktok.com", "https://www.tiktok.com/", "", nil,
+	},
 }
 
 // FindDomainTemplate returns the first template that matches a given hostname.
