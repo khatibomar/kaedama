@@ -19,6 +19,11 @@ type template struct {
 // defaultUserAgent used when a template doesn't specify one.
 const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0"
 
+const (
+	headerUserAgent = "user-agent"
+	headerHost      = "host"
+)
+
 // templates contains domain-specific anti-hotlinking rules.
 //
 //nolint:goconst // just shut the fuck up
@@ -207,13 +212,13 @@ func FindDomainTemplate(hostname string) *template {
 // GenerateHeaders builds a header map for a given URL, using the domain templates.
 func GenerateHeaders(u *url.URL) map[string]string {
 	headers := map[string]string{
-		"user-agent":      defaultUserAgent,
+		headerUserAgent:   defaultUserAgent,
 		"accept":          "*/*",
 		"accept-language": "en-US,en;q=0.5",
 		"sec-fetch-dest":  "empty",
 		"sec-fetch-mode":  "cors",
 		"sec-fetch-site":  "cross-site",
-		"host":            u.Host,
+		headerHost:        u.Host,
 	}
 
 	hostname := strings.ToLower(u.Hostname())
@@ -227,7 +232,7 @@ func GenerateHeaders(u *url.URL) map[string]string {
 	headers["referer"] = template.referer
 
 	if template.userAgent != "" {
-		headers["user-agent"] = template.userAgent
+		headers[headerUserAgent] = template.userAgent
 	}
 
 	maps.Copy(headers, template.additionalHeaders)

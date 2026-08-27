@@ -26,6 +26,7 @@ linters:
     - ireturn
     - depguard
     - dupl # can be useful, but annoying.
+    - gomodguard
     - funlen
     - gocognit
     - gocyclo # I am okay with huge methods
