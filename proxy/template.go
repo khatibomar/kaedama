@@ -90,7 +90,7 @@ var templates = []template{
 		regexp.MustCompile(`(?i)(mewstream|nekostream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|` +
 			`akirax|mikora|norami|shiora|kotocdn|kryntal|imgnex|nexabloom|ironhorizon|hiddenvertex|` +
 			`livedns|sugevideo|watching|cloudbuzz|anivideo|cloudvideo|trycloud|phantomharbor|` +
-			`stellarfrontier|shadowharbor|silentforge|lunarfrontier|broforgotsave|crystaldrift|eclipseharbor|` +
+			`stellarfrontier|goldenanchor|shadowharbor|silentforge|lunarfrontier|broforgotsave|crystaldrift|eclipseharbor|` +
 			`flarestorm|zaptrix|lookaround|orbitra|streamzone1|sparkora|renvix|cinewave2|gleamwave|zapora|glimmeron|lostproject)\.` +
 			`(online|click|buzz|live|club|site|top|my|xyz|onl|lol|sbs|pro|lat|space|website|world)$`),
 		"https://megaplay.buzz", "https://megaplay.buzz/", "", nil,
