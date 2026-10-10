@@ -73,7 +73,10 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	resp, err := api.proxyService.URL(r.Context(), parsedOriginalURL)
+	customOrigin := r.URL.Query().Get("origin")
+	customReferer := r.URL.Query().Get("referer")
+
+	resp, err := api.proxyService.URL(r.Context(), parsedOriginalURL, customOrigin, customReferer)
 	if err != nil {
 		var errValidation *proxy.ValidationError
 		if errors.As(err, &errValidation) {
@@ -98,7 +101,7 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 	if resp.Content != nil {
 		if (proxy.IsM3U8ContentType(resp.ContentType) || proxy.IsM3U8URL(targetURL)) && proxy.IsActualM3U8Content(resp.Content) {
 			proxyURI := "/proxy"
-			processedContent := api.proxyService.ProcessM3U8(resp.Content, parsedOriginalURL, proxyURI)
+			processedContent := api.proxyService.ProcessM3U8(resp.Content, parsedOriginalURL, proxyURI, customOrigin, customReferer)
 			responseBody = []byte(processedContent)
 		} else {
 			responseBody = resp.Content

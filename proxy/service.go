@@ -126,7 +126,7 @@ func validateURL(ctx context.Context, u *url.URL) error {
 	return nil
 }
 
-func (s *Service) URL(ctx context.Context, requestURL *url.URL) (*Result, error) {
+func (s *Service) URL(ctx context.Context, requestURL *url.URL, customOrigin, customReferer string) (*Result, error) {
 	if err := validateURL(ctx, requestURL); err != nil {
 		return nil, err
 	}
@@ -134,6 +134,13 @@ func (s *Service) URL(ctx context.Context, requestURL *url.URL) (*Result, error)
 	targetURL := requestURL.String()
 
 	headers := GenerateHeaders(requestURL)
+
+	if customOrigin != "" {
+		headers["origin"] = customOrigin
+	}
+	if customReferer != "" {
+		headers["referer"] = customReferer
+	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
 	if err != nil {
@@ -209,13 +216,21 @@ func normalizeURL(rawURL string) string {
 
 var uriRegex = regexp.MustCompile(`URI="([^"]+)"`)
 
-func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string) string {
+func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string, customOrigin, customReferer string) string {
 	basePath := baseURL.String()
 
 	if strings.HasSuffix(basePath, ".m3u8") {
 		basePath = basePath[:strings.LastIndex(basePath, "/")+1]
 	} else if !strings.HasSuffix(basePath, "/") {
 		basePath += "/"
+	}
+
+	var querySuffix string
+	if customOrigin != "" {
+		querySuffix += "&origin=" + url.QueryEscape(customOrigin)
+	}
+	if customReferer != "" {
+		querySuffix += "&referer=" + url.QueryEscape(customReferer)
 	}
 
 	var buf strings.Builder
@@ -267,7 +282,7 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 					absoluteURI = fmt.Sprintf("%s%s", basePath, originalURI)
 				}
 
-				proxiedURL := fmt.Sprintf("%s?url=%s", proxyURL, url.QueryEscape(absoluteURI))
+				proxiedURL := fmt.Sprintf("%s?url=%s%s", proxyURL, url.QueryEscape(absoluteURI), querySuffix)
 				line = strings.ReplaceAll(line,
 					fmt.Sprintf(`URI="%s"`, rawURI),
 					fmt.Sprintf(`URI="%s"`, proxiedURL),
@@ -294,7 +309,7 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string)
 				absoluteURL = fmt.Sprintf("%s%s", basePath, trimmedLine)
 			}
 
-			proxiedURL := fmt.Sprintf("%s?url=%s", proxyURL, url.QueryEscape(absoluteURL))
+			proxiedURL := fmt.Sprintf("%s?url=%s%s", proxyURL, url.QueryEscape(absoluteURL), querySuffix)
 			buf.WriteString(proxiedURL)
 			continue
 		}

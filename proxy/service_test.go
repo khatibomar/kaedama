@@ -59,7 +59,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL)
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -85,7 +85,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL)
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -112,7 +112,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL)
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -139,7 +139,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL)
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -163,7 +163,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL)
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -187,7 +187,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL)
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -211,7 +211,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL)
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -229,7 +229,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL + "/playlist.m3u8")
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -248,7 +248,7 @@ func TestService_URL(t *testing.T) {
 		defer ts.Close()
 
 		u, _ := url.Parse(ts.URL)
-		res, err := service.URL(ctx, u)
+		res, err := service.URL(ctx, u, "", "")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -259,7 +259,7 @@ func TestService_URL(t *testing.T) {
 
 	t.Run("unreachable server", func(t *testing.T) {
 		u, _ := url.Parse("http://127.0.0.1:0") // port 0 should fail to connect
-		_, err := service.URL(ctx, u)
+		_, err := service.URL(ctx, u, "", "")
 		if err == nil {
 			t.Error("expected error for unreachable server")
 		}
@@ -361,7 +361,7 @@ func TestService_ProcessM3U8(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			u, _ := url.Parse(tt.baseURL)
-			result := service.ProcessM3U8([]byte(tt.content), u, proxyURL)
+			result := service.ProcessM3U8([]byte(tt.content), u, proxyURL, "", "")
 			if result != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, result)
 			}
@@ -481,7 +481,7 @@ func TestService_URL_ContextCanceled(t *testing.T) {
 	cancel() // cancel immediately
 
 	u, _ := url.Parse("http://example.com")
-	_, err := service.URL(ctx, u)
+	_, err := service.URL(ctx, u, "", "")
 	if err == nil {
 		t.Error("expected error due to canceled context")
 	}
