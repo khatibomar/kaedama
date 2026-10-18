@@ -89,7 +89,7 @@ var templates = []template{
 	{
 		regexp.MustCompile(`(?i)(mewstream|nekostream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|` +
 			`akirax|mikora|norami|shiora|kotocdn|kryntal|imgnex|nexabloom|ironhorizon|hiddenvertex|` +
-			`livedns|sugevideo|watching|cloudbuzz|anivideo|cloudvideo|trycloud|phantomharbor|give6beforegtav|` +
+			`livedns|sugevideo|watching|cloudbuzz|anivideo|cloudvideo|trycloud|phantomharbor|give6beforegtav|wintergrove|` +
 			`stellarfrontier|goldenanchor|shadowharbor|silentforge|lunarfrontier|broforgotsave|crystaldrift|eclipseharbor|` +
 			`mistyhorizon|midnightvoyage|twilightharbor|silentvoyage|` +
 			`flarestorm|zaptrix|lookaround|orbitra|streamzone1|sparkora|renvix|cinewave2|gleamwave|zapora|glimmeron|lostproject)\.` +
