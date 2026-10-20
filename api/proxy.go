@@ -62,7 +62,17 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if cached, exists := api.cache.Get(targetURL); exists {
+	customOrigin := r.URL.Query().Get("origin")
+	customReferer := r.URL.Query().Get("referer")
+
+	// The same upstream URL is rewritten into different proxy URLs depending
+	// on the origin/referer overrides, so cached entries must be scoped to
+	// them as well. Otherwise a body cached without overrides would be
+	// replayed for a request that has them, and the rewritten inner
+	// segments would silently lose their origin/referer.
+	cacheKey := buildCacheKey(targetURL, customOrigin, customReferer)
+
+	if cached, exists := api.cache.Get(cacheKey); exists {
 		if cachedResp, ok := cached.(*CachedResponse); ok {
 			w.Header().Set("Content-Type", cachedResp.ContentType)
 			stripRemoteHeaders(w, cachedResp.Headers)
@@ -72,9 +82,6 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	customOrigin := r.URL.Query().Get("origin")
-	customReferer := r.URL.Query().Get("referer")
 
 	resp, err := api.proxyService.URL(r.Context(), parsedOriginalURL, customOrigin, customReferer)
 	if err != nil {
@@ -116,7 +123,7 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 				Status:      resp.Status,
 				Body:        responseBody,
 			}
-			api.cache.Set(targetURL, cachedResp, int64(len(responseBody)))
+			api.cache.Set(cacheKey, cachedResp, int64(len(responseBody)))
 		}
 
 		_, _ = w.Write(responseBody) //nolint:gosec // proxy passthrough by design
@@ -147,8 +154,19 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 			Status:      resp.Status,
 			Body:        buf.Bytes(),
 		}
-		api.cache.Set(targetURL, cachedResp, int64(buf.Len()))
+		api.cache.Set(cacheKey, cachedResp, int64(buf.Len()))
 	}
+}
+
+// buildCacheKey scopes a cache entry to the origin/referer overrides that
+// were used to produce it. Requests without overrides keep using the bare
+// target URL as the key.
+func buildCacheKey(targetURL, customOrigin, customReferer string) string {
+	if customOrigin == "" && customReferer == "" {
+		return targetURL
+	}
+
+	return targetURL + "|origin=" + customOrigin + "|referer=" + customReferer
 }
 
 func (api *api) handleHealth(w http.ResponseWriter, r *http.Request) {

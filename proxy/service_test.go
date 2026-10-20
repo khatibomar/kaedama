@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/andybalholm/brotli"
@@ -367,6 +368,75 @@ func TestService_ProcessM3U8(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestService_ProcessM3U8_OriginReferer(t *testing.T) {
+	t.Parallel()
+	service := New()
+	proxyURL := "/proxy"
+
+	origin := "https://megaplay.buzz"
+	referer := "https://megaplay.buzz/"
+	suffix := "&origin=" + url.QueryEscape(origin) + "&referer=" + url.QueryEscape(referer)
+
+	t.Run("inner segments carry origin and referer", func(t *testing.T) {
+		t.Parallel()
+
+		content := "#EXTM3U\n#EXTINF:4.004000,\nhttps://cdn.example.com/seg-00000.ts\n"
+		base, _ := url.Parse("https://cdn.example.com/path/index-f1.m3u8")
+
+		result := service.ProcessM3U8([]byte(content), base, proxyURL, origin, referer)
+
+		expected := "#EXTM3U\n#EXTINF:4.004000,\n" + proxyURL + "?url=" +
+			url.QueryEscape("https://cdn.example.com/seg-00000.ts") + suffix
+		if result != expected {
+			t.Errorf("expected %q, got %q", expected, result)
+		}
+	})
+
+	t.Run("sub playlists carry origin and referer", func(t *testing.T) {
+		t.Parallel()
+
+		content := "#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=5500000,RESOLUTION=1920x1080,NAME=\"1080p\"\n" +
+			"https://cdn.example.com/path/index-f1.m3u8\n"
+		base, _ := url.Parse("https://cdn.example.com/path/master.m3u8")
+
+		result := service.ProcessM3U8([]byte(content), base, proxyURL, origin, referer)
+
+		if !strings.Contains(result, suffix) {
+			t.Errorf("expected sub playlist to carry %q, got %q", suffix, result)
+		}
+	})
+
+	t.Run("uri attributes carry origin and referer", func(t *testing.T) {
+		t.Parallel()
+
+		content := "#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=\"https://cdn.example.com/key.bin\"\n"
+		base, _ := url.Parse("https://cdn.example.com/path/playlist.m3u8")
+
+		result := service.ProcessM3U8([]byte(content), base, proxyURL, origin, referer)
+
+		expected := "#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=\"" + proxyURL + "?url=" +
+			url.QueryEscape("https://cdn.example.com/key.bin") + suffix + "\""
+		if result != expected {
+			t.Errorf("expected %q, got %q", expected, result)
+		}
+	})
+
+	t.Run("no origin or referer adds no suffix", func(t *testing.T) {
+		t.Parallel()
+
+		content := "#EXTM3U\nhttps://cdn.example.com/seg-00000.ts\n"
+		base, _ := url.Parse("https://cdn.example.com/path/playlist.m3u8")
+
+		result := service.ProcessM3U8([]byte(content), base, proxyURL, "", "")
+
+		expected := "#EXTM3U\n" + proxyURL + "?url=" +
+			url.QueryEscape("https://cdn.example.com/seg-00000.ts")
+		if result != expected {
+			t.Errorf("expected %q, got %q", expected, result)
+		}
+	})
 }
 
 func TestDecompressContent(t *testing.T) {
