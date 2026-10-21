@@ -87,7 +87,7 @@ var templates = []template{
 
 	// megaplay related
 	{
-		regexp.MustCompile(`(?i)(mewstream|nekostream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|` +
+		regexp.MustCompile(`(?i)(mewstream|nekostream|flareon|zaplume|lumiflow|ovexa|sparqle|voltara|embermeadow|` +
 			`akirax|mikora|norami|shiora|kotocdn|kryntal|imgnex|nexabloom|ironhorizon|hiddenvertex|whereismyloot|` +
 			`livedns|sugevideo|watching|cloudbuzz|anivideo|cloudvideo|trycloud|phantomharbor|give6beforegtav|wintergrove|` +
 			`stellarfrontier|goldenanchor|shadowharbor|silentforge|lunarfrontier|broforgotsave|crystaldrift|eclipseharbor|` +
