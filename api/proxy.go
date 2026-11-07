@@ -106,11 +106,17 @@ func (api *api) handleProxy(w http.ResponseWriter, r *http.Request) {
 	var responseBody []byte
 
 	if resp.Content != nil {
-		if (proxy.IsM3U8ContentType(resp.ContentType) || proxy.IsM3U8URL(targetURL)) && proxy.IsActualM3U8Content(resp.Content) {
-			proxyURI := "/proxy"
+		const proxyURI = "/proxy"
+		switch {
+		case (proxy.IsM3U8ContentType(resp.ContentType) || proxy.IsM3U8URL(targetURL)) && proxy.IsActualM3U8Content(resp.Content):
 			processedContent := api.proxyService.ProcessM3U8(resp.Content, parsedOriginalURL, proxyURI, customOrigin, customReferer)
 			responseBody = []byte(processedContent)
-		} else {
+		case proxy.IsActualVTTContent(resp.Content):
+			processedContent := api.proxyService.ProcessVTT(resp.Content, parsedOriginalURL, proxyURI, customOrigin, customReferer)
+			responseBody = []byte(processedContent)
+			resp.ContentType = proxy.VTTContentType
+			w.Header().Set("Content-Type", resp.ContentType)
+		default:
 			responseBody = resp.Content
 		}
 
