@@ -3,6 +3,7 @@ linters:
   default: all
   disable:
     - exhaustruct # seems like a good idea at first but actually a pain and go does have zero values for a reason.
+    - exhaustruct_v5
     - gochecknoglobals
     - gochecknoinits
     # can't get it to accept //nolint so... have to disable it
