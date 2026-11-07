@@ -12,4 +12,7 @@ FROM scratch
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /build/src/kaedama /usr/bin/kaedama
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD ["/usr/bin/kaedama", "healthcheck"]
+
 ENTRYPOINT ["/usr/bin/kaedama"]

@@ -108,10 +108,41 @@ func main() {
 		os.Exit(1)
 	}
 
+	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
+		if err := healthcheck(cfg.Port); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	if err := realMain(log, cfg); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Error("Failed to startup server", slog.Any("error", err))
 		os.Exit(1)
 	}
+}
+
+// healthcheck queries the local /health endpoint so scratch images need no curl or wget.
+func healthcheck(port int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	url := fmt.Sprintf("http://127.0.0.1:%d/health", port)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return fmt.Errorf("build health request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("health request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unhealthy: status %d", resp.StatusCode)
+	}
+	return nil
 }
 
 func realMain(log *slog.Logger, cfg Config) error {
