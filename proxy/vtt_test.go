@@ -26,7 +26,8 @@ func TestService_ProcessVTT(t *testing.T) {
 		},
 		{
 			name:  "absolute and protocol-relative references",
-			input: "WEBVTT\n\n1\n00:00.000 --> 00:05.000\nhttps://cdn.example.com/a.jpg\n\n00:05.000 --> 00:10.000\n//cdn.example.com/b.png\n",
+			input: "WEBVTT\n\n1\n00:00.000 --> 00:05.000\nhttps://cdn.example.com/a.jpg\n\n" +
+				"00:05.000 --> 00:10.000\n//cdn.example.com/b.png\n",
 			want: "WEBVTT\n\n1\n00:00.000 --> 00:05.000\n/proxy?url=https%3A%2F%2Fcdn.example.com%2Fa.jpg\n\n" +
 				"00:05.000 --> 00:10.000\n/proxy?url=https%3A%2F%2Fcdn.example.com%2Fb.png\n",
 		},

@@ -68,7 +68,7 @@ func proxyVTTReference(line string, baseURL *url.URL, proxyURL, querySuffix stri
 		return "", false
 	}
 
-	isAbsolute := ref.Scheme == "http" || ref.Scheme == "https"
+	isAbsolute := ref.Scheme == schemeHTTP || ref.Scheme == schemeHTTPS
 	_, isImage := vttImageExtensions[strings.ToLower(path.Ext(ref.Path))]
 	if ref.ForceQuery || (!isAbsolute && (ref.Scheme != "" || !isImage)) {
 		return "", false

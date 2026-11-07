@@ -21,6 +21,11 @@ import (
 	"github.com/klauspost/compress/zstd"
 )
 
+const (
+	schemeHTTP  = "http"
+	schemeHTTPS = "https"
+)
+
 type Service struct {
 	client *http.Client
 }
@@ -103,7 +108,7 @@ func isPrivateIP(ip net.IP) bool {
 }
 
 func validateURL(ctx context.Context, u *url.URL) error {
-	if u.Scheme != "http" && u.Scheme != "https" {
+	if u.Scheme != schemeHTTP && u.Scheme != schemeHTTPS {
 		return &ValidationError{err: fmt.Errorf("invalid scheme %q: only http and https are allowed", u.Scheme)}
 	}
 
