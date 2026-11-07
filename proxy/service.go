@@ -169,7 +169,8 @@ func (s *Service) URL(ctx context.Context, requestURL *url.URL, customOrigin, cu
 	}
 
 	isM3U8 := IsM3U8ContentType(contentType) || IsM3U8URL(targetURL)
-	if !isM3U8 {
+	isVTT := IsVTTContentType(contentType) || IsVTTURL(targetURL)
+	if !isM3U8 && !isVTT {
 		return &Result{
 			ContentType: contentType,
 			Headers:     headers,
@@ -225,13 +226,7 @@ func (s *Service) ProcessM3U8(content []byte, baseURL *url.URL, proxyURL string,
 		basePath += "/"
 	}
 
-	var querySuffix string
-	if customOrigin != "" {
-		querySuffix += "&origin=" + url.QueryEscape(customOrigin)
-	}
-	if customReferer != "" {
-		querySuffix += "&referer=" + url.QueryEscape(customReferer)
-	}
+	querySuffix := proxyQuerySuffix(customOrigin, customReferer)
 
 	var buf strings.Builder
 	buf.Grow(len(content) + len(content)/2)
